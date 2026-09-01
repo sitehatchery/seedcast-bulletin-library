@@ -1,0 +1,476 @@
+/*
+ * Bulletin Library — admin styles.
+ *
+ * Screen-specific chrome for Bulletin Library's own admin pages: the
+ * service editor, announcement editor and program editor. Shared chrome
+ * (settings pages, appearance picker, suite grid, moderation queue)
+ * lives in the Seedcast Core stylesheet, which is enqueued as a
+ * dependency of this stylesheet.
+ */
+
+/* Completeness column on the service list. */
+.scbl-complete { color: #1a7f37; }
+.column-scbl_missing { width: 22%; }
+
+/* Contact autocomplete suggestion row (announcement editor). */
+.scbl-contact-suggestion {
+	padding: .4rem .6rem;
+	cursor: pointer;
+	border-bottom: 1px solid #f0f0f1;
+}
+.scbl-contact-suggestion:hover {
+	background: #f6f7f7;
+}
+
+/* Expired-announcement row dimming (announcement list table). */
+.scbl-ann-expired td {
+	opacity: .55;
+}
+
+/* ── Service editor: service-date panel ─────────── */
+.scbl-service-date {
+	margin: 1rem 0 .5rem;
+	padding: .75rem 1rem;
+	background: #f0f6fc;
+	border-left: 3px solid #2271b1;
+	border-radius: 0 4px 4px 0;
+}
+.scbl-service-date__row {
+	display: flex;
+	align-items: center;
+	gap: .5rem;
+}
+.scbl-service-date__label { font-weight: 600; }
+.scbl-service-date__input { max-width: 200px; }
+
+.scbl-service-note { margin: 1.5rem 0 .35rem; }
+.scbl-service-note__title {
+	display: block;
+	margin-bottom: .15rem;
+}
+.scbl-service-note__hint { font-size: 12px; }
+
+/* ── Service editor: meta box descriptions and video field ── */
+.scbl-metabox-desc { margin-top: 0; }
+.scbl-video-label {
+	display: block;
+	margin-bottom: .35rem;
+	font-weight: 600;
+}
+.scbl-video-input { width: 100%; }
+
+/* Featured-image-position radio group. */
+.scbl-image-position__option {
+	display: block;
+	margin-bottom: .35rem;
+}
+
+/* ── Service editor: announcement review notice ───── */
+.scbl-review-notice {
+	background: #f0f6fc;
+	border-left: 3px solid #2271b1;
+	padding: .75rem 1rem;
+	margin-bottom: 1rem;
+}
+.scbl-review-item {
+	display: flex;
+	gap: .75rem;
+	align-items: flex-start;
+	padding: .5rem 0;
+	border-top: 1px solid rgba(0, 0, 0, .06);
+}
+.scbl-review-item__body { flex: 1; }
+.scbl-review-item__date {
+	font-size: 12px;
+	color: #646970;
+}
+
+.scbl-copies-empty {
+	color: #646970;
+	font-style: italic;
+	padding: 1rem;
+	background: #f6f7f7;
+	border-radius: 4px;
+}
+
+/* ── Service editor: announcement copies ─────────── */
+.scbl-copy {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: .75rem 1rem;
+	margin-bottom: .5rem;
+}
+.scbl-copy__row {
+	display: flex;
+	gap: .75rem;
+	align-items: flex-start;
+}
+.scbl-copy__image { flex-shrink: 0; }
+.scbl-copy__body {
+	flex: 1;
+	min-width: 0;
+}
+.scbl-copy__title {
+	font-weight: 600;
+	font-size: 14px;
+	color: #1d2327;
+}
+.scbl-copy__desc {
+	color: #50575e;
+	font-size: 13px;
+	margin-top: .25rem;
+}
+.scbl-copy__meta {
+	color: #646970;
+	font-size: 12px;
+	margin-top: .25rem;
+}
+.scbl-copy__meta + .scbl-copy__meta { margin-top: .15rem; }
+
+.scbl-copy__update-hint {
+	margin-top: .4rem;
+	padding: .35rem .6rem;
+	background: #fef7e0;
+	border: 1px solid #f0c674;
+	border-radius: 3px;
+	font-size: 12px;
+	color: #6b4c00;
+	display: flex;
+	align-items: center;
+	gap: .5rem;
+}
+.scbl-copy-remove {
+	color: #b32d2e;
+	font-size: 20px;
+	line-height: 1;
+}
+
+/* 60px square thumbnails used inline in the copies list and its JS. */
+.scbl-copy__thumb {
+	width: 60px;
+	height: 60px;
+	object-fit: cover;
+	border-radius: 4px;
+	display: block;
+}
+
+/* ── Service editor: program row (mirrors .scbl-copy shape) ── */
+.scbl-program-row {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: .75rem 1rem;
+	margin-bottom: .5rem;
+}
+.scbl-program-row__row {
+	display: flex;
+	gap: .75rem;
+	align-items: flex-start;
+}
+.scbl-program-row__image { flex-shrink: 0; }
+.scbl-program-row__thumb {
+	width: 48px;
+	height: 48px;
+	object-fit: cover;
+	border-radius: 4px;
+	display: block;
+}
+.scbl-program-row__body {
+	flex: 1;
+	min-width: 0;
+}
+.scbl-program-row__title-row {
+	display: flex;
+	gap: .5rem;
+	align-items: baseline;
+}
+.scbl-program-row__title {
+	font-size: 14px;
+	color: #1d2327;
+}
+.scbl-program-row__time {
+	color: #646970;
+	font-size: 12px;
+}
+.scbl-program-row__desc {
+	color: #50575e;
+	font-size: 13px;
+	margin-top: .15rem;
+}
+.scbl-program-row__meta {
+	color: #646970;
+	font-size: 12px;
+	margin-top: .15rem;
+}
+.scbl-program-remove {
+	color: #b32d2e;
+	font-size: 20px;
+	line-height: 1;
+}
+
+/* Notice styling in program list and program editor. */
+.scbl-notice-inline { margin-top: 1rem; }
+
+/* Settings page: descriptions with breathing room. */
+.scbl-settings-desc { margin-bottom: 1rem; }
+.scbl-settings-thumb { max-width: 200px; height: auto; }
+
+/* List table dash placeholder for empty date column. */
+.scbl-empty-dash { color: #8c8f94; }
+
+/* Announcement editor: date inputs and ongoing toggle. */
+.scbl-ann-date-input { width: 100%; }
+.scbl-ann-end-wrap.is-hidden { display: none; }
+
+/* Announcement editor: text inputs full-width. */
+.scbl-ann-input { width: 100%; }
+
+/* Announcement editor: contact block separator. */
+.scbl-ann-block {
+	margin-top: .75rem;
+	padding-top: .75rem;
+	border-top: 1px solid #dcdcde;
+}
+.scbl-ann-block__title { margin: 0 0 .35rem; }
+.scbl-ann-field { margin: 0 0 .35rem; }
+.scbl-ann-field--relative { position: relative; }
+.scbl-ann-field-desc { margin: .25rem 0 0; }
+
+/* Announcement editor: contact autocomplete dropdown. */
+.scbl-ann-contact-suggestions {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+	max-height: 180px;
+	overflow-y: auto;
+	z-index: 100;
+	display: none;
+}
+.scbl-ann-contact-suggestions.is-open { display: block; }
+
+/* Contacts admin: actions column width. */
+.scbl-contacts-actions-col { width: 180px; }
+
+/* Programs review notice — mirror the announcement one. */
+.scbl-program-suggestions {
+	background: #f0f6fc;
+	border-left: 3px solid #2271b1;
+	padding: .75rem 1rem;
+	margin-bottom: 1rem;
+}
+.scbl-program-suggestion {
+	display: flex;
+	gap: .75rem;
+	align-items: flex-start;
+	padding: .5rem 0;
+	border-top: 1px solid rgba(0, 0, 0, .06);
+}
+.scbl-program-suggestion__body { flex: 1; }
+.scbl-program-suggestion__time {
+	color: #646970;
+	font-size: 12px;
+	margin-left: .5rem;
+}
+.scbl-program-suggestion__desc {
+	font-size: 12px;
+	color: #646970;
+	margin-top: .15rem;
+}
+
+/* Programs empty state. */
+.scbl-programs-empty {
+	color: #646970;
+	font-style: italic;
+	padding: 1rem;
+	background: #f6f7f7;
+	border-radius: 4px;
+}
+
+/* ── Handouts (saved and unsaved rows) ─────────── */
+.scbl-handout {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: .75rem 1rem;
+	margin-bottom: .5rem;
+}
+.scbl-handout--saved {
+	display: flex;
+	gap: .75rem;
+	align-items: center;
+}
+.scbl-handout--edit {
+	display: grid;
+	grid-template-columns: 1fr 1fr auto;
+	gap: .75rem;
+	align-items: start;
+}
+.scbl-handout__body {
+	flex: 1;
+	min-width: 0;
+}
+.scbl-handout__title {
+	font-weight: 600;
+	font-size: 14px;
+	color: #1d2327;
+}
+.scbl-handout__meta {
+	color: #646970;
+	font-size: 12px;
+	margin-top: .15rem;
+}
+.scbl-handout-remove {
+	color: #b32d2e;
+	font-size: 20px;
+	line-height: 1;
+	align-self: center;
+}
+.scbl-handout-remove--start { align-self: start; }
+.scbl-handout__label {
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	color: #50575e;
+	margin-bottom: .15rem;
+}
+.scbl-handout__input,
+.scbl-handout__select { width: 100%; }
+.scbl-handout__file-row { margin-top: .4rem; }
+.scbl-handout-file-name {
+	margin-left: .5rem;
+	font-size: 12px;
+	color: #646970;
+}
+.scbl-handout__note {
+	font-size: 11px;
+	margin: .25rem 0 0;
+}
+.scbl-handout__add { margin-top: .75rem; }
+
+/* ── Announcement list table ─────────────────── */
+.scbl-ann-list__thumb {
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	object-fit: cover;
+	border-radius: 4px;
+}
+.scbl-ann-list__thumb--empty { background: #f0f0f1; }
+.scbl-ann-list__ongoing { color: #646970; }
+.scbl-ann-status { font-weight: 600; }
+.scbl-ann-status--active   { color: #007017; }
+.scbl-ann-status--upcoming { color: #2271b1; }
+.scbl-ann-status--expired  { color: #8a5100; }
+
+/* Keyboard-highlighted contact autocomplete suggestion (mouse hover uses
+   the same selector so hover/keyboard states match visually). */
+.scbl-contact-suggestion.is-active,
+.scbl-contact-suggestion[aria-selected="true"] {
+	background: #e5efff;
+	outline: 2px solid #2271b1;
+	outline-offset: -2px;
+}
+
+/* "Updated - save to keep" state after clicking the copy or program
+   Update button. Replaces the "changed" amber styling with a green one. */
+.scbl-copy__update-hint--updated {
+	background: #e6f4ea;
+	border-color: #7bc47f;
+	color: #1e4620;
+}
+
+/* ── Defensive CSS for sites where asset optimization strips wp-admin.css ──
+   Some sites run Autoptimize / WP Rocket / etc which can strip or defer
+   parts of wp-admin.css, causing metabox handle aria-labels ("Move up",
+   "Move down", "Show or hide panel") to render as visible text, and the
+   normal 20px gap between metaboxes to collapse. Only applies on our
+   post types so we don't affect other admin screens. */
+body.post-type-scbl_service .postbox,
+body.post-type-scbl_announcement .postbox,
+body.post-type-scbl_program .postbox {
+	margin-bottom: 20px;
+}
+
+body.post-type-scbl_service .screen-reader-text,
+body.post-type-scbl_announcement .screen-reader-text,
+body.post-type-scbl_program .screen-reader-text {
+	border: 0 !important;
+	clip: rect(1px, 1px, 1px, 1px) !important;
+	clip-path: inset(50%) !important;
+	height: 1px !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	position: absolute !important;
+	width: 1px !important;
+	word-wrap: normal !important;
+}
+
+/* Metabox handle-actions kept visible so admins can collapse and reorder
+   boxes normally. If dashicons aren't loading, users see empty bordered
+   buttons instead of chevrons, but the controls are still functional. */
+
+/* Same intent: without wp-admin CSS, the metabox title (.hndle) can lose
+   its font-weight and padding. Re-declare defensively. */
+body.post-type-scbl_service .postbox .hndle,
+body.post-type-scbl_announcement .postbox .hndle,
+body.post-type-scbl_program .postbox .hndle {
+	padding: 8px 12px;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.4;
+	margin: 0;
+}
+
+/* Service Update textarea (replaces the earlier wp_editor). */
+.scbl-description-textarea {
+	width: 100%;
+	font-family: inherit;
+	font-size: 14px;
+	line-height: 1.5;
+	padding: .5rem;
+}
+
+/* wp_editor renders with a wp-editor-wrap containing wp-editor-tools
+   (Visual/Code tabs, quicktags/mce buttons) and wp-editor-container
+   (the textarea). Some asset optimization strips these positioning
+   rules; re-declare defensively so the wp_editor stays contained
+   inside its metabox. */
+body.post-type-scbl_service .wp-editor-wrap {
+	position: relative;
+	width: 100%;
+}
+body.post-type-scbl_service .wp-editor-tools {
+	position: relative;
+	padding: 0;
+	background: transparent;
+}
+body.post-type-scbl_service .wp-editor-container {
+	position: relative;
+	border: 1px solid #dcdcde;
+	background: #fff;
+}
+body.post-type-scbl_service .wp-editor-container textarea.wp-editor-area {
+	width: 100%;
+	padding: .5rem;
+	border: none;
+	background: transparent;
+}
+body.post-type-scbl_service .wp-switch-editor {
+	display: inline-block;
+	padding: 3px 8px 4px;
+	margin: 0 0 0 5px;
+	border: 1px solid #dcdcde;
+	background: #f6f7f7;
+	color: #50575e;
+	font-size: 13px;
+	line-height: 1.4;
+	border-radius: 3px 3px 0 0;
+	cursor: pointer;
+}

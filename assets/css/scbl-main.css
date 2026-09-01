@@ -1,0 +1,516 @@
+/*
+ * Sunday front-end styles.
+ *
+ * Uses Seedcast theme tokens (--sc-color-*, --sc-radius, --sc-shadow-*)
+ * so all four themes (light/dark/warm/minimal) style Sunday consistently
+ * with the rest of the suite. Anything hardcoded here should be a
+ * functional constant (media backgrounds, etc.), not a theme color.
+ */
+
+/* ── Service archive: grid of cards ─────────────────────────── */
+.scbl-service-grid {
+	display: grid;
+	gap: 1.25rem;
+	margin: 1.5rem 0;
+}
+.scbl-service-grid--cols-1 { grid-template-columns: 1fr; }
+.scbl-service-grid--cols-2 { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+.scbl-service-grid--cols-3 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.scbl-service-grid--cols-4 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+
+/* ── One card ───────────────────────────────────────────────── */
+.scbl-service-card {
+	background: var(--sc-color-bg, #fff);
+	border: 1px solid var(--sc-color-border, #e5e7eb);
+	border-radius: var(--sc-radius-lg, 8px);
+	overflow: hidden;
+	transition: box-shadow .18s, transform .18s;
+	box-shadow: var(--sc-shadow-sm, 0 1px 2px rgba(0,0,0,.04));
+}
+.scbl-service-card:hover {
+	box-shadow: var(--sc-shadow-md, 0 4px 12px rgba(0,0,0,.08));
+	transform: translateY(-1px);
+}
+.scbl-service-card__link {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+}
+
+/* Image area at the top of the card. Fixed aspect for uniform grids. */
+.scbl-service-card__image {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	background: var(--sc-color-bg-subtle, #f3f4f6);
+	overflow: hidden;
+}
+.scbl-service-card__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+/* Fallback image (either the plugin default or an admin-set default) needs
+   a background because the shipped PNG is a transparent silhouette, and
+   contain rather than cover so the whole silhouette shows. */
+.scbl-service-card__img--fallback {
+	object-fit: contain;
+	padding: 1rem;
+	background: var(--sc-color-accent-light, #e5e7eb);
+}
+
+/* Content row below the image: date badge left, title + lines right. */
+.scbl-service-card__content {
+	display: grid;
+	grid-template-columns: 90px 1fr;
+	gap: 1.25rem;
+	padding: 1.25rem 1.5rem;
+}
+
+/* Date block - SUN / 12 / JUL stacked. */
+.scbl-service-card__date {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	background: var(--sc-color-accent-light, #f3f4f6);
+	border-radius: var(--sc-radius, 6px);
+	padding: .75rem .5rem;
+	color: var(--sc-color-accent, #111827);
+}
+.scbl-service-card__dow {
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: .08em;
+	line-height: 1;
+	opacity: .8;
+}
+.scbl-service-card__day {
+	font-size: 2rem;
+	font-weight: 800;
+	line-height: 1.1;
+	margin: .1rem 0;
+}
+.scbl-service-card__mon {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .08em;
+	line-height: 1;
+	opacity: .8;
+}
+
+/* Right column - title + content lines. */
+.scbl-service-card__body { min-width: 0; }
+.scbl-service-card__title {
+	margin: 0 0 .5rem;
+	font-size: 1.1rem;
+}
+.scbl-service-card__lines {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: .25rem;
+	font-size: .9rem;
+}
+.scbl-service-card__detail {
+	display: block;
+	font-size: .8rem;
+	margin-top: .1rem;
+}
+
+/* Featured card - bigger date block, more presence. */
+.scbl-service-card--featured .scbl-service-card__link {
+	grid-template-columns: 120px 1fr;
+	padding: 1.75rem 2rem;
+}
+.scbl-service-card--featured .scbl-service-card__day { font-size: 2.75rem; }
+.scbl-service-card--featured .scbl-service-card__title { font-size: 1.4rem; }
+
+/* ── Single service page ─────────────────────────────────── */
+.scbl-single__header {
+	margin-bottom: 2rem;
+}
+.scbl-single__date {
+	margin: .35rem 0 0;
+	font-size: 1.15rem;
+}
+.scbl-single__title-row {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin: 0 0 .75rem;
+}
+.scbl-single__title {
+	margin: 0;
+}
+.scbl-single__browse {
+	display: inline-block;
+	-webkit-appearance: none;
+	appearance: none;
+	background: var(--sc-color-bg, #fff);
+	border: 1px solid var(--sc-color-accent, #4f46e5);
+	border-radius: 999px;
+	color: var(--sc-color-primary, #111827);
+	padding: .55rem 1rem;
+	font-size: .9rem;
+	line-height: 1;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background-color .15s, border-color .15s;
+}
+.scbl-single__browse:hover,
+.scbl-single__browse:focus-visible {
+	background: var(--sc-color-accent-light, #eef);
+	border-color: var(--sc-color-accent, #4f46e5);
+	color: var(--sc-color-primary, #111827);
+	text-decoration: none;
+	outline: none;
+}
+.scbl-single__intro {
+	line-height: 1.7;
+}
+
+/* Featured image positions on the service page. */
+.scbl-single__image { margin: 1.5rem 0; }
+.scbl-single__image img {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	border-radius: var(--sc-radius, 6px);
+}
+.scbl-single--image-none .scbl-single__image { display: none; }
+
+/* Video takes the same slot as featured image on the single page. */
+.scbl-single__video { margin: 1.5rem 0 2rem; }
+
+/* Full-width sections render above the two-column body, spanning the full
+   page width. Suited to primary content like sermon cards. */
+.scbl-single__full {
+	margin: 2rem 0;
+}
+
+/* Body: single column by default. When plugins contribute sidebar content
+   via the `scbl_service_sidebar_end` action or the sections filter with
+   `'column' => 'sidebar'`, the template adds `--has-sidebar` and the layout
+   switches to two columns (main + sidebar). */
+.scbl-single__body {
+	display: block;
+	margin: 2rem 0;
+}
+.scbl-single__body--has-sidebar {
+	display: flex;
+	gap: 25px;
+	align-items: flex-start;
+}
+.scbl-single__main {
+	flex: auto;
+	min-width: 0;
+}
+.scbl-single__sidebar {
+	flex: 0 0 35%;
+	min-width: 0;
+}
+/* On narrow viewports, the two columns collapse; sidebar wraps below. */
+@media (max-width: 900px) {
+	.scbl-single__body--has-sidebar {
+		flex-wrap: wrap;
+	}
+	.scbl-single__sidebar {
+		flex-basis: 100%;
+	}
+}
+
+/* Archive-page heading + intro. */
+.scbl-archive__heading {
+	margin: 0 0 .5rem;
+}
+.scbl-archive__intro {
+	margin: 0 0 2rem;
+	line-height: 1.6;
+	max-width: 60ch;
+}
+
+/* Section blocks on the single page. */
+.scbl-section {
+	margin: 2.5rem 0;
+}
+.scbl-section__title {
+	margin: 0 0 1rem;
+	font-size: 1.35rem;
+	padding-bottom: .5rem;
+	border-bottom: 1px solid var(--sc-color-border, #e5e7eb);
+}
+
+/* ── Announcement grid ─────────────────────────────────── */
+.scbl-ann-grid {
+	display: grid;
+	gap: 1.25rem;
+	margin: 1rem 0;
+}
+.scbl-ann-grid--cols-1 { grid-template-columns: 1fr; }
+.scbl-ann-grid--cols-2 { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+.scbl-ann-grid--cols-3 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.scbl-ann-grid--cols-4 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+
+/* Card: image on top (if present), then title, body, structured details,
+   and event-link button. Empty sections render nothing - card shape
+   adapts to whatever data is present. */
+.scbl-ann-card {
+	background: var(--sc-color-bg, #fff);
+	border: 1px solid var(--sc-color-border, #e5e7eb);
+	border-radius: var(--sc-radius, 6px);
+	overflow: hidden;
+	display: flex;
+	flex-flow: wrap;
+	box-shadow: var(--sc-shadow-sm, 0 1px 2px rgba(0,0,0,.04));
+	transition: box-shadow .15s ease, transform .15s ease;
+}
+.scbl-ann-card:hover {
+	box-shadow: var(--sc-shadow-md, 0 4px 12px rgba(0, 0, 0, .08));
+	transform: translateY(-1px);
+}
+
+.scbl-ann-card__image {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	background: var(--sc-color-bg-subtle, #f6f7f7);
+}
+.scbl-ann-card__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.scbl-ann-card__body {
+	padding: 1rem 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: .5rem;
+	flex: 1;
+}
+
+.scbl-ann-card__title {
+	margin: 0;
+	font-size: 1.05rem;
+	line-height: 1.3;
+}
+
+.scbl-ann-card__desc {
+	font-size: 1rem;
+	line-height: 1.55;
+}
+.scbl-ann-card__desc p { margin: 0 0 .5rem; }
+.scbl-ann-card__desc p:last-child { margin-bottom: 0; }
+
+/* Structured details list - time, location, contact. Each row is a small
+   icon + line of text; renders only when the field is populated. */
+.scbl-ann-card__details {
+	list-style: none;
+	margin: .5rem 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: .4rem;
+}
+.scbl-ann-card__detail {
+	display: flex;
+	align-items: flex-start;
+	gap: .5rem;
+	font-size: .95rem;
+	line-height: 1.4;
+}
+.scbl-ann-card__icon {
+	flex-shrink: 0;
+	width: 1.1rem;
+	text-align: center;
+	color: var(--sc-color-muted, #6b7280);
+	opacity: 1;
+}
+.scbl-ann-card__detail a {
+	text-decoration: none;
+}
+.scbl-ann-card__detail a:hover {
+	text-decoration: underline;
+}
+
+/* Event-link button - sits at the bottom of the card, clearly a
+   navigational affordance separate from the descriptive text. */
+.scbl-ann-card__link-wrap {
+	margin: .75rem 0 0;
+}
+.scbl-ann-card__link {
+	display: inline-block;
+	padding: .4rem .85rem;
+	background: var(--sc-color-accent-light, #f3f4f6);
+	color: var(--sc-color-link, #1e40af);
+	border-radius: var(--sc-radius, 6px);
+	text-decoration: none;
+	font-size: .9rem;
+	font-weight: 600;
+	transition: background .15s;
+}
+.scbl-ann-card__link:hover {
+	background: var(--sc-color-border, #e5e7eb);
+	color: var(--sc-color-link-hover, #1e3a8a);
+	text-decoration: none;
+}
+
+
+/* ── Programs section ("Today's Programs") ─────────────────── */
+.scbl-program-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-flow: wrap;
+	gap: .5rem;
+}
+.scbl-program {
+	display: flex;
+	flex-direction: column;
+	background: var(--sc-color-bg, #fff);
+	border: 1px solid var(--sc-color-border, #e5e7eb);
+	border-radius: var(--sc-radius, 6px);
+	overflow: hidden;
+	transition: box-shadow .15s ease, transform .15s ease;
+}
+.scbl-program:hover {
+	box-shadow: var(--sc-shadow-md, 0 4px 12px rgba(0, 0, 0, .08));
+	transform: translateY(-1px);
+}
+.scbl-program__inner {
+	display: flex;
+	gap: 1rem;
+	padding: .75rem 1rem;
+	flex: 1;
+}
+.scbl-program__image img {
+	display: block;
+	width: 64px;
+	height: 64px;
+	object-fit: cover;
+	border-radius: 4px;
+}
+.scbl-program__body { flex: 1; min-width: 0; }
+.scbl-program__head {
+	display: flex;
+	align-items: baseline;
+	gap: .5rem;
+	flex-wrap: wrap;
+}
+.scbl-program__title {
+	margin: 0;
+	font-size: 1.15rem;
+}
+.scbl-program__title a {
+	text-decoration: none;
+	border-bottom: 1px solid transparent;
+	transition: border-color .15s;
+}
+.scbl-program__title a:hover {
+	border-bottom-color: currentColor;
+}
+.scbl-program__time {
+	font-size: 1rem;
+}
+.scbl-program__desc {
+	margin: .25rem 0 0;
+	font-size: 1rem;
+	line-height: 1.55;
+}
+
+/* Handouts footer: separated visually from the service details above
+   by a light background and a top border. The sibling __inner grows
+   with `flex: 1`, which pushes this strip to the bottom of the card
+   without growing the tan area itself - keeping the label and download
+   pills flush to the top of the strip. */
+.scbl-program__handouts {
+	background: var(--sc-color-bg-subtle, #f6f7f7);
+	border-top: 1px solid var(--sc-color-border, #e5e7eb);
+	padding: .75rem 1rem;
+	font-size: .95rem;
+	line-height: 1.5;
+}
+.scbl-program__handouts-label {
+	font-weight: 700;
+	margin-bottom: .5rem;
+}
+.scbl-program__handout-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
+}
+.scbl-program__handout-link {
+	display: inline-block;
+	padding: .35rem .75rem;
+	background: var(--sc-color-bg, #fff);
+	border: 1px solid var(--sc-color-border, #e5e7eb);
+	border-radius: var(--sc-radius, 6px);
+	color: var(--sc-color-text, #111827);
+	font-weight: 500;
+	text-decoration: none;
+	line-height: 1.2;
+	transition: border-color .15s, background-color .15s;
+}
+.scbl-program__handout-link:hover,
+.scbl-program__handout-link:focus-visible {
+	background: var(--sc-color-bg, #fff);
+	border-color: var(--sc-color-accent, #4f46e5);
+	color: var(--sc-color-text, #111827);
+	text-decoration: none;
+	outline: none;
+}
+
+/* Standalone handouts section (for handouts not attached to any Program
+   on this service). Same visual language as the per-Program footer. */
+.scbl-handout-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
+}
+.scbl-handout-list__item { margin: 0; }
+.scbl-section--handouts .scbl-program__handout-link {
+	padding: .5rem 1rem;
+}
+
+/* ── Empty and small states. ───────────────────────────── */
+.sc-empty {
+	padding: 2rem;
+	font-style: italic;
+}
+
+.sc-pagination {
+	margin: 2rem 0;
+	text-align: center;
+}
+
+/* Standard WordPress accessibility helper; some themes ship this
+   at the theme level, some don't. Cheap to include and guarantees
+   time-elements and offscreen labels stay hidden without breaking
+   assistive tech. */
+.scbl-single .screen-reader-text,
+.scbl-service-card .screen-reader-text {
+	border: 0;
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	word-wrap: normal !important;
+}
