@@ -31,7 +31,7 @@ define( 'SCBL_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
  * its features. They are the same today; they diverge as soon as another
  * plugin ships a newer core and this one has not caught up yet.
  */
-define( 'SCBL_CORE_VERSION',     '1.26.1' );
+define( 'SCBL_CORE_VERSION',     '1.26.2' );
 define( 'SCBL_CORE_MIN_VERSION', '1.24.4' );
 
 /*
