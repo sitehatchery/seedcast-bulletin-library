@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use SeedcastBulletinLibrary\Bulletin\ServiceEditor;
 use Seedcast\Core\Frontend\ShareButtons;
+use Seedcast\Core\Frontend\Kses;
 
 get_header();
 
@@ -151,7 +152,7 @@ while ( have_posts() ) :
 			<?php if ( ! empty( $scbl_full_sections ) ) : ?>
 				<div class="scbl-single__full">
 					<?php foreach ( $scbl_full_sections as $s ) : ?>
-						<?php echo $s['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted plugin output; wp_kses_post strips form inputs. ?>
+						<?php echo Kses::section( (string) $s['html'] ); ?>
 					<?php endforeach; ?>
 				</div>
 			<?php endif; ?>
@@ -171,7 +172,7 @@ while ( have_posts() ) :
 				do_action( 'scbl_service_sidebar_end', get_the_ID() );
 			}
 			foreach ( $scbl_sidebar_sections as $s ) {
-				echo $s['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted plugin output.
+				echo Kses::section( (string) $s['html'] );
 			}
 			$scbl_sidebar_html = trim( (string) ob_get_clean() );
 			$scbl_has_sidebar  = '' !== $scbl_sidebar_html;
@@ -181,7 +182,7 @@ while ( have_posts() ) :
 				<div class="scbl-single__main">
 					<div class="scbl-single__sections">
 						<?php foreach ( $scbl_main_sections as $s ) : ?>
-							<?php echo $s['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Trusted plugin output; wp_kses_post strips form inputs. ?>
+							<?php echo Kses::section( (string) $s['html'] ); ?>
 						<?php endforeach; ?>
 
 						<?php if ( '' === $scbl_description && empty( $scbl_full_sections ) && empty( $scbl_main_sections ) && ! $scbl_has_sidebar ) : ?>
@@ -199,11 +200,10 @@ while ( have_posts() ) :
 				<?php if ( $scbl_has_sidebar ) : ?>
 					<aside class="scbl-single__sidebar" aria-label="<?php esc_attr_e( 'Service page sidebar', 'seedcast-bulletin-library' ); ?>">
 						<?php
-						// Trusted plugin output. wp_kses_post strips <input>
-						// tags, which would hide form fields in the Visitor
-						// Card.
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						echo $scbl_sidebar_html;
+						// Escaped against Kses::section(), which allows the
+						// form controls and inline SVG the Visitor Card needs
+						// and wp_kses_post() would strip.
+						echo Kses::section( $scbl_sidebar_html );
 						?>
 					</aside>
 				<?php endif; ?>

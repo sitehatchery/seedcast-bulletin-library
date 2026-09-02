@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: Seedcast Bulletin Library
- * Plugin URI:  https://seedcast.ai/bulletin-library
+ * Plugin URI:  https://seedcast.ai/bulletin-library/
  * Description: A searchable archive of every week's service bulletin. Bulletin Library assembles programs, announcements, and handouts into a single dated page and preserves the story of each Sunday over time.
- * Version:     3.6.4
+ * Version:     3.7.0
  * Author:      Seedcast
  * Author URI:  https://seedcast.ai
  * License:     GPL-2.0-or-later
@@ -20,7 +20,7 @@ namespace SeedcastBulletinLibrary;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'SCBL_VERSION',         '3.6.4' );
+define( 'SCBL_VERSION',         '3.7.0' );
 define( 'SCBL_PLUGIN_FILE',     __FILE__ );
 define( 'SCBL_PLUGIN_DIR',      plugin_dir_path( __FILE__ ) );
 define( 'SCBL_PLUGIN_URL',      plugin_dir_url( __FILE__ ) );
@@ -31,7 +31,7 @@ define( 'SCBL_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
  * its features. They are the same today; they diverge as soon as another
  * plugin ships a newer core and this one has not caught up yet.
  */
-define( 'SCBL_CORE_VERSION',     '1.24.4' );
+define( 'SCBL_CORE_VERSION',     '1.26.1' );
 define( 'SCBL_CORE_MIN_VERSION', '1.24.4' );
 
 /*

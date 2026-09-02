@@ -23,9 +23,9 @@ class Frontend {
 		add_action( 'pre_get_posts',          [ $this, 'archive_query' ] );
 
 		// Shortcodes.
-		add_shortcode( 'scbl_services',            [ $this, 'sc_services' ] );
-		add_shortcode( 'scbl_next_service',        [ $this, 'sc_next_service' ] );
-		add_shortcode( 'scbl_announcements',       [ $this, 'sc_announcements' ] );
+		add_shortcode( 'scbl_services',            [ $this, 'seedcast_services' ] );
+		add_shortcode( 'scbl_next_service',        [ $this, 'seedcast_next_service' ] );
+		add_shortcode( 'scbl_announcements',       [ $this, 'seedcast_announcements' ] );
 	}
 
 	/**
@@ -123,7 +123,7 @@ class Frontend {
 
 	// ─── Shortcodes ────────────────────────────────────────────────────
 
-	public function sc_services( $atts ): string {
+	public function seedcast_services( $atts ): string {
 		self::ensure_shortcode_assets();
 		$atts = shortcode_atts( [ 'limit' => '', 'columns' => '3', 'start_date' => '' ], $atts, 'scbl_services' );
 		$limit = $atts['limit'] !== '' ? absint( $atts['limit'] ) : absint( get_option( 'scbl_services_per_page', 10 ) );
@@ -171,7 +171,7 @@ class Frontend {
 		return (string) ob_get_clean();
 	}
 
-	public function sc_next_service( $atts ): string {
+	public function seedcast_next_service( $atts ): string {
 		self::ensure_shortcode_assets();
 		$today = gmdate( 'Y-m-d' );
 		// phpcs:disable WordPress.DB.SlowDBQuery -- date-based scheduling requires meta_key/meta_query
@@ -196,7 +196,7 @@ class Frontend {
 		return (string) ob_get_clean();
 	}
 
-	public function sc_announcements( $atts ): string {
+	public function seedcast_announcements( $atts ): string {
 		self::ensure_shortcode_assets();
 		$atts = shortcode_atts( [ 'columns' => '3' ], $atts, 'scbl_announcements' );
 		$today = gmdate( 'Y-m-d' );

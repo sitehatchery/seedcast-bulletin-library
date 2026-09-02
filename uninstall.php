@@ -6,7 +6,7 @@
  * (Services, Announcements, Programs) is preserved because it may still be
  * wanted for records. Define SCBL_FULL_UNINSTALL to also drop that content.
  *
- * Nothing here touches the sc_ options or the seedcast_submissions table.
+ * Nothing here touches the seedcast_ options or the seedcast_submissions table.
  * Those belong to the shared library, and every other Seedcast plugin on the
  * site is still using them. Deleting a church's theme choice and captcha keys
  * because they uninstalled one plugin of several would be a real and

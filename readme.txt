@@ -4,7 +4,7 @@ Tags: church, bulletin, ministry, announcements, sermons
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.6.4
+Stable tag: 3.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,12 @@ No.
 
 == Changelog ==
 
+= 3.7.0 =
+* Every setting the shared Seedcast library stores was renamed to a longer, more distinctive prefix, so it cannot collide with another plugin that happened to pick the same short one. Your church details, service times, theme and spam settings are carried across automatically the first time the plugin loads; nothing needs re-entering.
+* Service page sections and the sidebar are now escaped against an allow list on the way out, instead of being printed as-is. Visitor Card forms and share icons are unaffected: the list admits the form fields and icons the suite actually uses, and removes scripts and event handlers.
+* Submitted form values are cleaned once, in a single place, before any plugin sees them. A value containing a backslash is no longer damaged on its way into the database.
+* The church details published for search engines can no longer be broken by a stray tag in a setting.
+
 = 3.6.4 =
 * Program handouts strip no longer stretches with empty tan space. Reworked so the `.scbl-program__inner` area grows (`flex: 1`), pushing the handouts strip down to the bottom of the card as a compact block that hugs its content.
 
@@ -131,3 +137,8 @@ No.
 
 = 3.0.0 =
 * Initial rebrand from Living Bulletin to Seedcast Bulletin Library. Namespace, constants, post types, meta keys, options, admin menu, filters, CSS classes, JS filenames, template folder, and text domain all renamed.
+
+== Upgrade Notice ==
+
+= 3.7.0 =
+Settings stored by the shared Seedcast library move to a new, longer prefix. They are carried across for you on the first page load after upgrading, so nothing needs re-entering. Includes output escaping and input handling improvements.
