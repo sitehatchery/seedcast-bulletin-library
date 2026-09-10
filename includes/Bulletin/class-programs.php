@@ -169,6 +169,7 @@ class Programs {
 	private function render_row( int $index, array $c ): void {
 		$title    = (string) ( $c['title']    ?? '' );
 		$body     = (string) ( $c['body']     ?? '' );
+		$preview  = ServiceEditor::preview_text( $body );
 		$time     = (string) ( $c['time']     ?? '' );
 		$link     = (string) ( $c['link']     ?? '' );
 		$image_id = (int)    ( $c['image_id'] ?? 0 );
@@ -188,8 +189,8 @@ class Programs {
 							<span class="scbl-program-row__time"><?php echo esc_html( $time ); ?></span>
 						<?php endif; ?>
 					</div>
-					<?php if ( $body ) : ?>
-						<div class="scbl-program-row__desc"><?php echo esc_html( $body ); ?></div>
+					<?php if ( '' !== $preview ) : ?>
+						<div class="scbl-program-row__desc"><?php echo esc_html( $preview ); ?></div>
 					<?php endif; ?>
 					<?php if ( $link ) : ?>
 						<div class="scbl-program-row__meta"><a href="<?php echo esc_url( $link ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $link ); ?></a></div>
@@ -303,6 +304,7 @@ class Programs {
 		return [
 			'title'     => (string) get_the_title( $p ),
 			'body'      => (string) $p->post_content,
+			'preview'   => ServiceEditor::preview_text( (string) $p->post_content ),
 			'time'      => (string) get_post_meta( $p->ID, ProgramEditor::META_TIME, true ),
 			'link'      => (string) get_post_meta( $p->ID, ProgramEditor::META_LINK, true ),
 			'image_id'  => $image_id,

@@ -277,6 +277,24 @@ class ServiceEditor {
 	}
 
 	/**
+	 * Plain-text version of an announcement or program body, for the
+	 * read-only rows in the service editor.
+	 *
+	 * Bodies are stored as HTML (the front end renders them through
+	 * wpautop), so printing one through esc_html() shows the raw tags. A
+	 * space goes in ahead of line breaks and block closers before the tags
+	 * are stripped, so "Midday<br>12:00" reads as "Midday 12:00" rather
+	 * than "Midday12:00".
+	 */
+	public static function preview_text( string $html ): string {
+		$html = (string) preg_replace( '#<(?:br|/p|/h[1-6]|/li|/div|/blockquote|/tr|/td)\b[^>]*>#i', ' $0', $html );
+		$text = wp_strip_all_tags( $html );
+		$text = html_entity_decode( $text, ENT_QUOTES, 'UTF-8' );
+		$text = str_replace( "\xc2\xa0", ' ', $text );
+		return trim( (string) preg_replace( '/\s+/', ' ', $text ) );
+	}
+
+	/**
 	 * Renders one copy row - read-only display of the frozen snapshot, with
 	 * a Remove button and (if the source has changed since this was saved)
 	 * an "Update" affordance that pulls current source values in.
@@ -294,6 +312,7 @@ class ServiceEditor {
 		$time     = (string) ( $c['time']     ?? '' );
 		$location = (string) ( $c['location'] ?? '' );
 		$link     = (string) ( $c['link']     ?? '' );
+		$preview  = self::preview_text( (string) ( $c['body'] ?? '' ) );
 
 		$diff = self::source_has_changed( $c );
 		?>
@@ -306,8 +325,8 @@ class ServiceEditor {
 				<?php endif; ?>
 				<div class="scbl-copy__body">
 					<div class="scbl-copy__title"><?php echo esc_html( $c['title'] ?? '' ); ?></div>
-					<?php if ( ! empty( $c['body'] ) ) : ?>
-						<div class="scbl-copy__desc"><?php echo esc_html( $c['body'] ); ?></div>
+					<?php if ( '' !== $preview ) : ?>
+						<div class="scbl-copy__desc"><?php echo esc_html( $preview ); ?></div>
 					<?php endif; ?>
 					<?php if ( $time || $location ) : ?>
 						<div class="scbl-copy__meta">
@@ -599,6 +618,7 @@ class ServiceEditor {
 				'source_id' => $p->ID,
 				'title'     => get_the_title( $p ),
 				'body'      => $p->post_content,
+				'preview'   => self::preview_text( (string) $p->post_content ),
 				'link'      => (string) get_post_meta( $p->ID, '_scbl_ann_link',     true ),
 				'time'      => (string) get_post_meta( $p->ID, '_scbl_ann_time',     true ),
 				'location'  => (string) get_post_meta( $p->ID, '_scbl_ann_location', true ),

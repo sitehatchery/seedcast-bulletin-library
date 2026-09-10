@@ -154,6 +154,7 @@ class AnnouncementSection {
 			'source_id' => $p->ID,
 			'title'     => get_the_title( $p ),
 			'body'      => $p->post_content,
+			'preview'   => ServiceEditor::preview_text( (string) $p->post_content ),
 			'link'      => (string) get_post_meta( $p->ID, AnnouncementEditor::META_LINK,     true ),
 			'time'      => (string) get_post_meta( $p->ID, AnnouncementEditor::META_TIME,     true ),
 			'location'  => (string) get_post_meta( $p->ID, AnnouncementEditor::META_LOC,      true ),

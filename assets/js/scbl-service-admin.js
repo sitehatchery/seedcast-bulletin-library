@@ -61,7 +61,9 @@
 		var titleEl = row.querySelector( '.scbl-copy__title' );
 		if ( titleEl ) titleEl.textContent = src.title || '';
 		var descEl = row.querySelector( '.scbl-copy__desc' );
-		if ( descEl ) descEl.textContent = src.body || '';
+		if ( descEl ) {
+			descEl.textContent = src.preview || '';
+		}
 
 		// Refresh the visible thumbnail. If the row didn't have an image
 		// slot before (source had no image at Add time), insert one.
@@ -131,7 +133,9 @@
 		var timeEl = row.querySelector( '.scbl-program-row__time' );
 		if ( timeEl ) timeEl.textContent = src.time || '';
 		var descEl = row.querySelector( '.scbl-program-row__desc' );
-		if ( descEl ) descEl.textContent = src.body || '';
+		if ( descEl ) {
+			descEl.textContent = src.preview || '';
+		}
 
 		var imgWrap = row.querySelector( '.scbl-program-row__image' );
 		if ( src.image_url ) {
@@ -171,6 +175,7 @@
 			id:            id,
 			title:         src.title    || '',
 			body:          src.body     || '',
+			preview:       src.preview  || '',
 			link:          src.link     || '',
 			time:          src.time     || '',
 			location:      src.location || '',
@@ -211,7 +216,7 @@
 				( data.image_url ? '<div class="scbl-copy__image"><img src="' + escapeAttr( data.image_url ) + '" alt="" class="scbl-copy__thumb" /></div>' : '' ) +
 				'<div class="scbl-copy__body">' +
 					'<div class="scbl-copy__title">' + escapeText( data.title ) + '</div>' +
-					( data.body ? '<div class="scbl-copy__desc">' + escapeText( data.body ) + '</div>' : '' ) +
+					( data.preview ? '<div class="scbl-copy__desc">' + escapeText( data.preview ) + '</div>' : '' ) +
 					( meta.length ? '<div class="scbl-copy__meta">' + meta.join( ' · ' ) + '</div>' : '' ) +
 					( contactBits.length ? '<div class="scbl-copy__meta">' + contactBits.join( ' ' ) + '</div>' : '' ) +
 					( data.link ? '<div class="scbl-copy__meta"><a href="' + escapeAttr( data.link ) + '" target="_blank" rel="noopener">' + escapeText( data.link ) + '</a></div>' : '' ) +
@@ -260,6 +265,7 @@
 			id:        id,
 			title:     src.title    || '',
 			body:      src.body     || '',
+			preview:   src.preview  || '',
 			time:      src.time     || '',
 			link:      src.link     || '',
 			image_id:  src.image_id || 0,
@@ -284,7 +290,7 @@
 						'<strong class="scbl-program-row__title">' + escapeText( data.title ) + '</strong>' +
 						( data.time ? '<span class="scbl-program-row__time">' + escapeText( data.time ) + '</span>' : '' ) +
 					'</div>' +
-					( data.body ? '<div class="scbl-program-row__desc">' + escapeText( data.body ) + '</div>' : '' ) +
+					( data.preview ? '<div class="scbl-program-row__desc">' + escapeText( data.preview ) + '</div>' : '' ) +
 					( data.link ? '<div class="scbl-program-row__meta"><a href="' + escapeAttr( data.link ) + '" target="_blank" rel="noopener">' + escapeText( data.link ) + '</a></div>' : '' ) +
 					'<input type="hidden" class="scbl-program-title"     name="scbl_programs[' + next + '][title]"     value="' + escapeAttr( data.title )    + '" />' +
 					'<input type="hidden" class="scbl-program-body"      name="scbl_programs[' + next + '][body]"      value="' + escapeAttr( data.body )     + '" />' +
