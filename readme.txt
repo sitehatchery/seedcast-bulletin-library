@@ -172,6 +172,7 @@ No.
 * Fixed: the Expired filter on the Announcements list also listed ongoing announcements.
 * Fixed: announcement and program descriptions in the service editor showed raw HTML tags. They now read as plain text there, and the service page keeps its formatting.
 * Programs on the service page have a little more room between them, and the archive intro paragraph uses the full content width.
+* Fixed: `[scbl_next_service]` works out which service is next in the site's timezone, so this Sunday's service no longer gives way to next week's in the afternoon.
 
 = 3.7.0 =
 * Every setting the shared Seedcast library stores was renamed to a longer, more distinctive prefix, so it cannot collide with another plugin that happened to pick the same short one. Your church details, service times, theme and spam settings are carried across automatically the first time the plugin loads; nothing needs re-entering.

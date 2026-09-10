@@ -175,7 +175,9 @@ class Frontend {
 
 	public function seedcast_next_service( $atts ): string {
 		self::ensure_shortcode_assets();
-		$today = gmdate( 'Y-m-d' );
+		// Today in the site's timezone. In UTC, a church in California would see
+		// this Sunday's service give way to next week's at 5pm on the day.
+		$today = wp_date( 'Y-m-d' );
 		// phpcs:disable WordPress.DB.SlowDBQuery -- date-based scheduling requires meta_key/meta_query
 		$q = new \WP_Query( [
 			'post_type'      => ServiceCPT::POST_TYPE,
