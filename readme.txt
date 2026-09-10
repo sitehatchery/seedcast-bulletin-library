@@ -4,7 +4,7 @@ Tags: church, bulletin, ministry, announcements, sermons
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.7.0
+Stable tag: 3.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,7 +28,7 @@ Everything happens in the WordPress admin, in plain language. Create a service, 
 * **A featured image or video.** Drop in a YouTube, Vimeo or direct MP4 URL and the video plays in place of the image. You choose whether the image sits above the overview, below it, or stays hidden.
 * **A service overview** written in the normal WordPress editor. Prefer blocks? Turn the block editor on for services with one checkbox.
 * **Today's Programs**, each with its time, description, image and optional link.
-* **This Week's Announcements**, laid out as cards with time, location, contact details and an event link.
+* **This Week's Announcements**, laid out as cards saying when each one happens, where, who to contact, and an event link.
 * **Today's Handouts**, printable materials that render as download buttons beside the program they belong to.
 * **A sermon**, when Sermon Library is installed, and any other section a companion Seedcast plugin contributes.
 * **Share buttons** for Facebook, X, LinkedIn, email and copy link.
@@ -37,9 +37,20 @@ Everything happens in the WordPress admin, in plain language. Create a service, 
 
 Programs are the parallel experiences happening at your gathering: Sunday School, Youth Program, Main Service, Kids Church. Write each one once, with a title, time, description, image and an optional link to the ministry page on your site. From then on it is offered to you every week, ready to attach with a single click.
 
-= Announcements that know which Sunday they belong to =
+= Announcements scheduled the way your church talks =
 
-An announcement carries a display period: a start date and either an end date or "ongoing". Any Sunday whose week overlaps that range is offered the announcement automatically, so a notice that runs for six weeks appears on six service pages without anyone remembering to add it. Each announcement can carry a time, a location, contact name, email and phone, an event link and its own image, and empty fields simply disappear from the card.
+Every announcement starts with a frequency, and the editor asks only for what that frequency needs:
+
+* **No set schedule** for notices that are not events: a sign-up, a call for volunteers.
+* **One Time** for a single date.
+* **Consecutive** for a run of days, like ten days of prayer.
+* **Multiday** for one ministry that meets on several days, each with its own time. The men's group that meets on Wednesday at noon and again on Monday afternoon is one announcement, not two.
+* **Staggered** for a handful of specific dates, like a quarterly worship night.
+* **Recurring** for a regular rhythm: weekly on a chosen day, monthly, every other month, or the first, second, third or last weekday of the month.
+
+The card says it in plain words, "Every Thursday · 7pm" or "Third Saturday of the month · 8am", and a Staggered announcement quietly drops the dates that have already passed.
+
+An announcement is offered to every Sunday service from the week it is published through the week of its last date. A notice that runs for six weeks is waiting on six service pages without anyone remembering to add it, and you still decide, one click at a time, which Sundays it actually appears on. Each announcement can also carry a location, contact name, email and phone, an event link and its own image, and empty fields simply disappear from the card.
 
 Contact names autocomplete from a shared contacts list, so the same ministry leader is spelled and reached the same way everywhere.
 
@@ -62,9 +73,12 @@ Every service page emits full JSON-LD: an Event with startDate, datePublished, d
 
 = Shortcodes =
 
+Every one of these can be built in **Bulletin Library > Shortcodes** by picking options, with a button to copy the result.
+
 * `[scbl_services limit="6" columns="3" start_date="2026-01-01"]` a grid of service cards. Attributes: limit (default 10), columns (1 to 4, default 3), start_date (YYYY-MM-DD, hides services before that date).
 * `[scbl_next_service]` a featured card for the next upcoming service.
-* `[scbl_announcements]` currently active announcements as a grid.
+* `[scbl_announcements]` current and upcoming announcements as a grid.
+* `[scbl_announcements grouped="true"]` the same cards under Upcoming and Ongoing headings, for a page that can replace an events calendar. Upcoming lists dated events soonest first and drops each one the day after it ends. Use `first="upcoming"` (the default) or `first="ongoing"` to choose which comes first. Both forms accept columns (1 to 4, default 3).
 * `[seedcast_church_details]` your church name, address, service times, phone, email and a directions link, all read from one place so a move or a time change is a single edit.
 
 = Part of the Seedcast suite =
@@ -88,7 +102,7 @@ The plugin sends nothing to any external service. Your services, programs, annou
 
 = Do I need to add code to make this work? =
 
-No. Everything is manageable from the WordPress admin. Four shortcodes are available if you want to embed content on other pages, but nothing requires them.
+No. Everything is manageable from the WordPress admin. Four shortcodes are available if you want to embed content on other pages, and the Shortcode Generator builds them for you, but nothing requires them.
 
 = Does this replace my existing content? =
 
@@ -96,7 +110,11 @@ No. Bulletin Library adds new post types (Services, Programs, Announcements) alo
 
 = Do I have to re-enter announcements every week? =
 
-No. An announcement has a display period, and every Sunday whose week falls inside that period is offered the announcement in the editor. Attach it with one click, or leave it off that week if it does not apply.
+No. Every announcement is offered to each Sunday service from the week it is published through the week of its last date. Attach it with one click, or leave it off a week where it does not apply. One with no end date keeps being offered until you unpublish it.
+
+= Can one announcement cover a group that meets on different days? =
+
+Yes. Choose Multiday and add a row for each day, each with its own time. For specific dates rather than weekdays, such as a quarterly gathering, choose Staggered.
 
 = What happens to old services when I edit a program or announcement? =
 
@@ -135,10 +153,25 @@ No.
 5. Editing a service: service date, overview, featured image position, service video, and one-click suggestions for the programs, announcements and handouts that belong to that week.
 6. Programs are written once and reused: Main Service, Kids Church, Kids Huddle, Abidey Babies.
 7. Editing a program: description, time, optional link to the ministry page, and its own image.
-8. The Announcements list, showing each notice's display period and whether it is active or still upcoming.
-9. Editing an announcement: display period, time, location, contact details that autocomplete from your contacts list, and an event link.
+8. The Announcements list, showing each announcement's schedule and whether it is active or still upcoming.
+9. Editing an announcement: its frequency and schedule, location, contact details that autocomplete from your contacts list, and an event link.
 
 == Changelog ==
+
+= 3.8.0 =
+* Announcements get a Scheduling box in place of Display period. Choose a frequency (No set schedule, One Time, Consecutive, Multiday, Staggered, or Recurring: weekly, monthly, every other month, or the first, second, third or last weekday of the month) and fill in only the dates and times it needs. Time now lives in Scheduling.
+* Multiday covers one ministry that meets on several days of the week, each with its own time. Staggered covers a set of specific dates, each with its own time.
+* Announcement cards describe the schedule in plain words, such as "Every Thursday · 7pm" or "Third Saturday of the month · 8am". Staggered dates that have already passed for that service's week are left off.
+* An announcement is now offered to services from the week it is published through the week of its last date, or until it is unpublished when it has none. The `[scbl_announcements]` shortcode follows the same rule, so upcoming announcements now appear there too.
+* Existing announcements become "No set schedule" with their dates and time unchanged, so their cards look the same. Nothing needs migrating, and existing service copies are not flagged as changed.
+* The Announcements list shows a Schedule column in place of Start and End.
+* New: `[scbl_announcements grouped="true"]` lists announcements under Upcoming and Ongoing, so one page of it can replace an events calendar. One Time, Consecutive and Staggered announcements are Upcoming, soonest first; everything else is Ongoing. `first="upcoming"` (the default) or `first="ongoing"` sets which comes first, and the first heading adds no space above itself, so the page editor controls it.
+* New: a Shortcode Generator under Bulletin Library > Shortcodes builds any of the plugin's shortcodes from a few choices, in the same shape as the Sermon Library and Visitor Card generators.
+* Fixed: in a row of announcement cards, a card shorter than its neighbour stretched its image area, leaving a tinted gap between the image and the text. On Elementor pages, an image wider than 16:9 no longer falls short of its frame.
+* Announcement card images use the large size and keep their srcset, which escaping used to strip, so they stay sharp on high-resolution screens instead of being stretched from the 300px medium size.
+* Fixed: the Expired filter on the Announcements list also listed ongoing announcements.
+* Fixed: announcement and program descriptions in the service editor showed raw HTML tags. They now read as plain text there, and the service page keeps its formatting.
+* Programs on the service page have a little more room between them, and the archive intro paragraph uses the full content width.
 
 = 3.7.0 =
 * Every setting the shared Seedcast library stores was renamed to a longer, more distinctive prefix, so it cannot collide with another plugin that happened to pick the same short one. Your church details, service times, theme and spam settings are carried across automatically the first time the plugin loads; nothing needs re-entering.
@@ -205,6 +238,9 @@ No.
 * Initial rebrand from Living Bulletin to Seedcast Bulletin Library. Namespace, constants, post types, meta keys, options, admin menu, filters, CSS classes, JS filenames, template folder, and text domain all renamed.
 
 == Upgrade Notice ==
+
+= 3.8.0 =
+Announcements get a Scheduling box with frequencies such as One Time, Multiday and Recurring. Existing announcements carry over as "No set schedule" with their dates and time, so nothing changes until you edit them.
 
 = 3.7.0 =
 Settings stored by the shared Seedcast library move to a new, longer prefix. They are carried across for you on the first page load after upgrading, so nothing needs re-entering. Includes output escaping and input handling improvements.

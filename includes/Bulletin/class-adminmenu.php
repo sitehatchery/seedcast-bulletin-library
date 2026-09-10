@@ -121,7 +121,7 @@ class AdminMenu {
 	 * a chance to register - which is what this method does at priority 999.
 	 *
 	 * Desired order:
-	 *   Services, Programs, Announcements, Contacts, Settings
+	 *   Services, Programs, Announcements, Contacts, Shortcodes, Settings
 	 */
 	public function sort_submenu(): void {
 		global $submenu;
@@ -134,6 +134,7 @@ class AdminMenu {
 			// The Settings item is a link to the shared page, so its slug is
 			// the full relative URL rather than a page slug.
 			'scbl-contacts'                                           => 70,
+			ShortcodeGenerator::PAGE_SLUG                             => 80,
 			'options-general.php?page=seedcast-settings&section=scbl_general' => 90,
 		];
 

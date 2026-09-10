@@ -4,12 +4,13 @@ namespace SeedcastBulletinLibrary\Bulletin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * The `scbl_announcement` custom post type. A notice that runs across
- * a date range: start date, optional end date (empty end = ongoing).
+ * The `scbl_announcement` custom post type. A notice or event with a
+ * schedule (see Schedule): one date, a run of days, a weekly or monthly
+ * pattern, or no set schedule at all.
  *
- * Announcements are durational, not per-service. A single announcement
- * with a start and end date automatically appears on every service whose
- * week overlaps its range. See ServiceEditor for the copy mechanism.
+ * Announcements are durational, not per-service. Each one is offered to
+ * every service from the week it is published through the week of its
+ * last date. See ServiceEditor for the copy mechanism.
  */
 class AnnouncementCPT {
 

@@ -12,6 +12,7 @@ class Bulletin {
 		( new AdminMenu() )->init();
 		( new ContactsPage() )->init();
 		( new SettingsSection() )->init();
+		( new ShortcodeGenerator() )->init();
 
 		add_action( 'init', [ new ServiceCPT(),      'register' ] );
 		add_action( 'init', [ new AnnouncementCPT(), 'register' ] );

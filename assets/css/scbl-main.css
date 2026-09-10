@@ -239,7 +239,7 @@
 
 /* Section blocks on the single page. */
 .scbl-section {
-	margin: 2.5rem 0;
+	margin: 0 0 2.5rem 0;
 }
 .scbl-section__title {
 	margin: 0 0 1rem;
@@ -267,8 +267,11 @@
 	border: 1px solid var(--sc-color-border, #e5e7eb);
 	border-radius: var(--sc-radius, 6px);
 	overflow: hidden;
-	display: flex;
-	flex-flow: wrap;
+	/* A plain block, not flex. The grid stretches shorter cards in a row to
+	   match the tallest, and as a flex container the card handed some of
+	   that height to the image frame, opening a tinted gap under the image.
+	   In normal flow the frame keeps its 16:9 and the spare height sits at
+	   the bottom of the card. */
 	box-shadow: var(--sc-shadow-sm, 0 1px 2px rgba(0,0,0,.04));
 	transition: box-shadow .15s ease, transform .15s ease;
 }
@@ -283,7 +286,10 @@
 	overflow: hidden;
 	background: var(--sc-color-bg-subtle, #f6f7f7);
 }
-.scbl-ann-card__img {
+/* Two classes deep so page builders cannot shrink it. Elementor's
+   ".elementor img { height: auto }" would otherwise win and leave the
+   frame's background showing under any image wider than 16:9. */
+.scbl-ann-card .scbl-ann-card__img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
@@ -295,7 +301,6 @@
 	display: flex;
 	flex-direction: column;
 	gap: .5rem;
-	flex: 1;
 }
 
 .scbl-ann-card__title {

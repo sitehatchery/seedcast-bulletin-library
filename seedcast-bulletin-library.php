@@ -3,7 +3,7 @@
  * Plugin Name: Seedcast Bulletin Library
  * Plugin URI:  https://seedcast.ai/bulletin-library/
  * Description: A searchable archive of every week's service bulletin. Bulletin Library assembles programs, announcements, and handouts into a single dated page and preserves the story of each Sunday over time.
- * Version:     3.7.0
+ * Version:     3.8.0
  * Author:      Seedcast
  * Author URI:  https://seedcast.ai
  * License:     GPL-2.0-or-later
@@ -20,7 +20,7 @@ namespace SeedcastBulletinLibrary;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'SCBL_VERSION',         '3.7.0' );
+define( 'SCBL_VERSION',         '3.8.0' );
 define( 'SCBL_PLUGIN_FILE',     __FILE__ );
 define( 'SCBL_PLUGIN_DIR',      plugin_dir_path( __FILE__ ) );
 define( 'SCBL_PLUGIN_URL',      plugin_dir_url( __FILE__ ) );
@@ -47,6 +47,7 @@ require_once SCBL_PLUGIN_DIR . 'lib/seedcast-core/loader.php';
 );
 
 require_once SCBL_PLUGIN_DIR . 'includes/class-autoloader.php';
+require_once SCBL_PLUGIN_DIR . 'includes/helpers.php';
 Autoloader::register();
 
 final class Sunday {
@@ -144,7 +145,7 @@ final class Sunday {
 			'scbl-admin',
 			SCBL_PLUGIN_URL . 'assets/css/scbl-admin.css',
 			[ 'seedcast-core-admin' ],
-			SCBL_VERSION
+			scbl_asset_version( 'assets/css/scbl-admin.css' )
 		);
 
 		// Service editor only.
@@ -153,14 +154,14 @@ final class Sunday {
 				'scbl-service-admin',
 				SCBL_PLUGIN_URL . 'assets/js/scbl-service-admin.js',
 				[],
-				SCBL_VERSION,
+				scbl_asset_version( 'assets/js/scbl-service-admin.js' ),
 				true
 			);
 			wp_enqueue_script(
 				'scbl-handouts',
 				SCBL_PLUGIN_URL . 'assets/js/scbl-handouts.js',
 				[ 'media-editor' ],
-				SCBL_VERSION,
+				scbl_asset_version( 'assets/js/scbl-handouts.js' ),
 				true
 			);
 			// The handouts picker uses wp.media, which is not loaded by default
@@ -175,7 +176,7 @@ final class Sunday {
 				'scbl-settings',
 				SCBL_PLUGIN_URL . 'assets/js/scbl-settings.js',
 				[ 'media-editor' ],
-				SCBL_VERSION,
+				scbl_asset_version( 'assets/js/scbl-settings.js' ),
 				true
 			);
 			wp_localize_script(
@@ -192,7 +193,7 @@ final class Sunday {
 
 	public function elementor_assets(): void {
 		if ( get_option( 'scbl_disable_frontend_css', false ) ) return;
-		wp_enqueue_style( 'scbl-main', SCBL_PLUGIN_URL . 'assets/css/scbl-main.css', [], SCBL_VERSION );
+		wp_enqueue_style( 'scbl-main', SCBL_PLUGIN_URL . 'assets/css/scbl-main.css', [], scbl_asset_version( 'assets/css/scbl-main.css' ) );
 	}
 }
 

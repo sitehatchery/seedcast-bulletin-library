@@ -266,12 +266,22 @@ class SettingsSection {
 
 		<div class="sc-settings-card">
 			<h2><?php esc_html_e( 'Shortcodes', 'seedcast-bulletin-library' ); ?></h2>
+			<p>
+				<?php
+				printf(
+					/* translators: %s: link to the Shortcode Generator. */
+					esc_html__( 'Pick the options in the %s and copy the result, rather than writing attributes by hand.', 'seedcast-bulletin-library' ),
+					'<a href="' . esc_url( admin_url( 'admin.php?page=' . ShortcodeGenerator::PAGE_SLUG ) ) . '">' . esc_html__( 'Shortcode Generator', 'seedcast-bulletin-library' ) . '</a>'
+				);
+				?>
+			</p>
 			<p><code>[scbl_services]</code> <?php esc_html_e( 'grid of service cards.', 'seedcast-bulletin-library' ); ?><br />
 				<span class="description"><?php esc_html_e( 'Attributes: limit (default 10), columns (1 to 4, default 3), start_date (YYYY-MM-DD, hides services before this date).', 'seedcast-bulletin-library' ); ?></span><br />
 				<span class="description"><?php esc_html_e( 'Example:', 'seedcast-bulletin-library' ); ?> <code>[scbl_services limit="6" columns="3" start_date="2026-01-01"]</code></span>
 			</p>
 			<p><code>[scbl_next_service]</code> <?php esc_html_e( 'featured card for the next upcoming service.', 'seedcast-bulletin-library' ); ?></p>
-			<p><code>[scbl_announcements]</code> <?php esc_html_e( 'currently active announcements as a grid.', 'seedcast-bulletin-library' ); ?></p>
+			<p><code>[scbl_announcements]</code> <?php esc_html_e( 'current and upcoming announcements as a grid.', 'seedcast-bulletin-library' ); ?></p>
+			<p><code>[scbl_announcements grouped="true"]</code> <?php esc_html_e( 'the same cards under Upcoming and Ongoing headings, for a page that replaces an events calendar. Use first="upcoming" (the default) or first="ongoing" to choose which comes first.', 'seedcast-bulletin-library' ); ?></p>
 		</div>
 		<?php
 	}

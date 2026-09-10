@@ -219,9 +219,23 @@
 /* List table dash placeholder for empty date column. */
 .scbl-empty-dash { color: #8c8f94; }
 
-/* Announcement editor: date inputs and ongoing toggle. */
+/* Announcement editor: date inputs. */
 .scbl-ann-date-input { width: 100%; }
-.scbl-ann-end-wrap.is-hidden { display: none; }
+
+/* Announcement editor: scheduling. Fields show and hide by frequency. */
+.scbl-schedule__field { margin: 0 0 .85rem; }
+.scbl-schedule__field.is-hidden { display: none; }
+.scbl-schedule select { min-width: 14rem; max-width: 100%; }
+.scbl-schedule__help { margin: .35rem 0 0; }
+.scbl-schedule__pair { display: flex; flex-wrap: wrap; gap: 0 1rem; }
+.scbl-schedule__pair > .scbl-schedule__field { flex: 1 1 12rem; }
+.scbl-schedule__label { margin: 0 0 .35rem; }
+.scbl-schedule__item { display: flex; align-items: center; gap: .5rem; margin: 0 0 .5rem; }
+.scbl-schedule__item select,
+.scbl-schedule__item .scbl-ann-date-input { flex: 0 0 11rem; width: auto; min-width: 0; }
+.scbl-schedule__item .scbl-ann-input { flex: 1 1 auto; }
+.scbl-schedule__remove { color: #b32d2e; font-size: 1.25rem; line-height: 1; text-decoration: none; }
+.scbl-schedule__note { margin: .25rem 0 0; }
 
 /* Announcement editor: text inputs full-width. */
 .scbl-ann-input { width: 100%; }
@@ -473,4 +487,207 @@ body.post-type-scbl_service .wp-switch-editor {
 	line-height: 1.4;
 	border-radius: 3px 3px 0 0;
 	cursor: pointer;
+}
+
+/* ── Shortcode generator. Same shape as the Sermon Library and Visitor
+   Card generators, so the suite's three screens read as one. ─────────── */
+.scbl-sc-wrap { max-width: 1100px; }
+.scbl-sc-intro {
+	color: #646970;
+	margin-bottom: 1.5rem;
+	font-size: 14px;
+}
+.scbl-sc-layout {
+	display: grid;
+	grid-template-columns: 1fr 320px;
+	gap: 1.5rem;
+	align-items: start;
+}
+@media (max-width: 900px) {
+	.scbl-sc-layout { grid-template-columns: 1fr; }
+}
+.scbl-sc-card {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 1.25rem 1.5rem;
+	margin-bottom: 1rem;
+}
+.scbl-sc-card__title {
+	font-size: 14px;
+	font-weight: 700;
+	color: #1d2327;
+	margin: 0 0 1rem;
+	display: flex;
+	align-items: center;
+	gap: .5rem;
+}
+.scbl-sc-step {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	background: #2271b1;
+	color: #fff;
+	border-radius: 50%;
+	font-size: 12px;
+	font-weight: 800;
+	flex-shrink: 0;
+}
+.scbl-sc-options {
+	display: flex;
+	flex-direction: column;
+	gap: .5rem;
+}
+.scbl-sc-option {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: .75rem;
+	padding: .75rem 1rem;
+	border: 2px solid #dcdcde;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: border-color .15s, background .15s;
+	background: #fff;
+}
+.scbl-sc-option:hover,
+.scbl-sc-option.is-selected {
+	border-color: #2271b1;
+	background: #f0f6fc;
+}
+/* The radio is hidden, so keyboard focus shows on the whole option. */
+.scbl-sc-option:focus-within { box-shadow: 0 0 0 2px #2271b1; }
+.scbl-sc-radio {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+.scbl-sc-option__icon {
+	font-size: 1.25rem;
+	width: 32px;
+	text-align: center;
+	flex-shrink: 0;
+}
+.scbl-sc-option__body {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.scbl-sc-option__body strong { font-size: 13px; color: #1d2327; }
+.scbl-sc-option__body span { font-size: 12px; color: #646970; }
+.scbl-sc-panel[hidden],
+.scbl-sc-table tr[hidden] { display: none; }
+.scbl-sc-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+.scbl-sc-table th {
+	width: 160px;
+	text-align: left;
+	padding: .5rem .5rem .5rem 0;
+	font-weight: 600;
+	color: #1d2327;
+	vertical-align: top;
+}
+.scbl-sc-table td { padding: .4rem 0; vertical-align: top; }
+.scbl-sc-table input[type="text"] { width: 100%; }
+.scbl-sc-table .description { margin: .35rem 0 0; }
+.scbl-sc-checks {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: .35rem 1rem;
+}
+.scbl-sc-checks label { display: flex; align-items: center; gap: .4rem; }
+.scbl-sc-note { color: #646970; margin: 0; }
+.scbl-sc-output-card {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 1.25rem 1.5rem;
+	position: sticky;
+	top: 32px;
+}
+.scbl-sc-output-card h2 {
+	font-size: 14px;
+	font-weight: 700;
+	color: #1d2327;
+	margin: 0 0 .75rem;
+}
+.scbl-sc-output-code-wrap {
+	background: #1e1e1e;
+	border-radius: 4px;
+	padding: .85rem 1rem;
+	margin-bottom: .75rem;
+	overflow-x: auto;
+}
+.scbl-sc-code {
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 13px;
+	color: #9cdcfe;
+	background: none;
+	padding: 0;
+	white-space: pre-wrap;
+	display: block;
+	word-break: break-all;
+}
+.scbl-sc-copy-btn {
+	width: 100%;
+	justify-content: center;
+}
+.scbl-sc-divider {
+	border: none;
+	border-top: 1px solid #f0f0f1;
+	margin: 1rem 0;
+}
+.scbl-sc-output-card h3 {
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+	color: #646970;
+	margin: 0 0 .6rem;
+}
+.scbl-sc-instructions {
+	font-size: 12px;
+	color: #646970;
+	padding-left: 1.25rem;
+	margin: 0;
+	line-height: 1.8;
+}
+.scbl-sc-ref-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+.scbl-sc-ref-table th {
+	text-align: left;
+	padding: .3rem .4rem;
+	background: #f6f7f7;
+	border-bottom: 1px solid #dcdcde;
+	font-weight: 600;
+	color: #646970;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	font-size: 10px;
+}
+.scbl-sc-ref-table td {
+	padding: .4rem;
+	border-bottom: 1px solid #f0f0f1;
+	vertical-align: middle;
+	color: #646970;
+}
+.scbl-sc-ref-table tr:last-child td { border-bottom: none; }
+.scbl-sc-ref-table code {
+	background: #f0f0f1;
+	padding: .1rem .3rem;
+	border-radius: 3px;
+	font-size: 11px;
+	color: #2271b1;
 }

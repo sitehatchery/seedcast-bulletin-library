@@ -2,7 +2,8 @@
  * Bulletin Library announcement editor admin JS.
  *
  * Two behaviors on the announcement editor:
- *   1. "Ongoing" checkbox hides the end-date wrap.
+ *   1. Scheduling shows only the fields the chosen frequency uses,
+ *      and adds or removes Multiday and Staggered rows.
  *   2. Contact name field autocompletes from window.scblContacts,
  *      filling name/email/phone when a suggestion is picked. The
  *      autocomplete is a proper combobox listbox with keyboard nav
@@ -13,13 +14,108 @@
 ( function () {
 	'use strict';
 
-	// Ongoing checkbox → hide end-date wrap when checked.
-	var cb   = document.getElementById( 'scbl_ann_ongoing' );
-	var wrap = document.getElementById( 'scbl_ann_end_wrap' );
-	if ( cb && wrap ) {
-		cb.addEventListener( 'change', function () {
-			wrap.classList.toggle( 'is-hidden', cb.checked );
+	// Scheduling. Which fields each frequency uses comes from
+	// Schedule::fields() via data-fields: the same table PHP rendered the
+	// initial state from and filters the save through. Hidden fields are
+	// disabled so they neither submit nor block the form with a required
+	// field the admin cannot see.
+	var schedule = document.querySelector( '.scbl-schedule' );
+	if ( schedule ) {
+		initSchedule( schedule );
+	}
+
+	function initSchedule( box ) {
+		var fields   = JSON.parse( box.getAttribute( 'data-fields' ) || '{}' );
+		var freq     = document.getElementById( 'scbl_ann_frequency' );
+		var pattern  = document.getElementById( 'scbl_ann_pattern' );
+		var useDates = document.getElementById( 'scbl_ann_use_dates' );
+		var help     = document.getElementById( 'scbl_ann_frequency_help' );
+		var nextRow  = Date.now();
+
+		if ( ! freq || ! pattern || ! useDates ) {
+			return;
+		}
+
+		function kind() {
+			return freq.value === 'recurring' ? pattern.value : freq.value;
+		}
+
+		function isVisible( name, k ) {
+			var f = fields[ name ];
+			if ( ! f ) {
+				return false;
+			}
+			if ( f.show.indexOf( k ) !== -1 ) {
+				return true;
+			}
+			return useDates.checked && f.toggled.indexOf( k ) !== -1;
+		}
+
+		function addRow( name ) {
+			var tpl  = document.getElementById( 'scbl-schedule-tpl-' + name );
+			var list = box.querySelector( '[data-rows="' + name + '"]' );
+			if ( ! tpl || ! list ) {
+				return;
+			}
+			var holder = document.createElement( 'div' );
+			holder.innerHTML = tpl.innerHTML.replace( /__i__/g, String( nextRow++ ) ).trim();
+			if ( holder.firstElementChild ) {
+				list.appendChild( holder.firstElementChild );
+			}
+		}
+
+		function sync() {
+			var k = kind();
+
+			// An empty day or date list is a dead end; start it with one row.
+			if ( k === 'multiday' && ! box.querySelector( '[data-rows="days"] .scbl-schedule__item' ) ) {
+				addRow( 'days' );
+			}
+			if ( k === 'staggered' && ! box.querySelector( '[data-rows="dates"] .scbl-schedule__item' ) ) {
+				addRow( 'dates' );
+			}
+
+			box.querySelectorAll( '[data-field]' ).forEach( function ( wrap ) {
+				var name     = wrap.getAttribute( 'data-field' );
+				var on       = isVisible( name, k );
+				var required = on && fields[ name ].required.indexOf( k ) !== -1;
+				wrap.classList.toggle( 'is-hidden', ! on );
+				wrap.querySelectorAll( 'input, select, button' ).forEach( function ( el ) {
+					el.disabled = ! on;
+					if ( el.hasAttribute( 'data-required' ) ) {
+						el.required = required;
+					}
+				} );
+			} );
+
+			var option = freq.options[ freq.selectedIndex ];
+			if ( help && option ) {
+				help.textContent = option.getAttribute( 'data-help' ) || '';
+			}
+		}
+
+		box.addEventListener( 'click', function ( e ) {
+			var add = e.target.closest( '[data-add]' );
+			if ( add ) {
+				e.preventDefault();
+				addRow( add.getAttribute( 'data-add' ) );
+				sync();
+				return;
+			}
+			var remove = e.target.closest( '.scbl-schedule__remove' );
+			if ( remove ) {
+				e.preventDefault();
+				var item = remove.closest( '.scbl-schedule__item' );
+				if ( item ) {
+					item.remove();
+				}
+			}
 		} );
+
+		freq.addEventListener( 'change', sync );
+		pattern.addEventListener( 'change', sync );
+		useDates.addEventListener( 'change', sync );
+		sync();
 	}
 
 	// Contact autocomplete.

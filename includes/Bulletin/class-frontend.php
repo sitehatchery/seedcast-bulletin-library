@@ -1,6 +1,8 @@
 <?php
 namespace SeedcastBulletinLibrary\Bulletin;
 
+use Seedcast\Core\Frontend\Kses;
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
@@ -100,7 +102,7 @@ class Frontend {
 		}
 
 		if ( $load && ! get_option( 'scbl_disable_frontend_css', false ) ) {
-			wp_enqueue_style( 'scbl-main', SCBL_PLUGIN_URL . 'assets/css/scbl-main.css', [ 'seedcast-core' ], SCBL_VERSION );
+			wp_enqueue_style( 'scbl-main', SCBL_PLUGIN_URL . 'assets/css/scbl-main.css', [ 'seedcast-core' ], scbl_asset_version( 'assets/css/scbl-main.css' ) );
 		}
 
 		// Share button behaviour lives in the shared core script, which core
@@ -118,7 +120,7 @@ class Frontend {
 	 */
 	private static function ensure_shortcode_assets(): void {
 		if ( get_option( 'scbl_disable_frontend_css', false ) ) return;
-		wp_enqueue_style( 'scbl-main', SCBL_PLUGIN_URL . 'assets/css/scbl-main.css', [ 'seedcast-core' ], SCBL_VERSION );
+		wp_enqueue_style( 'scbl-main', SCBL_PLUGIN_URL . 'assets/css/scbl-main.css', [ 'seedcast-core' ], scbl_asset_version( 'assets/css/scbl-main.css' ) );
 	}
 
 	// ─── Shortcodes ────────────────────────────────────────────────────
@@ -198,35 +200,127 @@ class Frontend {
 
 	public function seedcast_announcements( $atts ): string {
 		self::ensure_shortcode_assets();
-		$atts = shortcode_atts( [ 'columns' => '3' ], $atts, 'scbl_announcements' );
-		$today = gmdate( 'Y-m-d' );
-		// Currently-active: start <= today AND (end empty OR end >= today).
+		$atts = shortcode_atts( [ 'columns' => '3', 'grouped' => 'false', 'first' => 'upcoming' ], $atts, 'scbl_announcements' );
+		// The rule the service editor suggests by: everything published whose
+		// last date is not before this week. With no last date it runs until
+		// it is unpublished.
+		$this_week = Week::anchor( gmdate( 'Y-m-d' ) );
 		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		$q = new \WP_Query( [
 			'post_type'      => AnnouncementCPT::POST_TYPE,
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'meta_query'     => [
-				'relation' => 'AND',
-				[ 'key' => AnnouncementEditor::META_START, 'value' => $today, 'compare' => '<=', 'type' => 'DATE' ],
-				[
-					'relation' => 'OR',
-					[ 'key' => AnnouncementEditor::META_END, 'value' => $today, 'compare' => '>=', 'type' => 'DATE' ],
-					[ 'key' => AnnouncementEditor::META_END, 'value' => '',     'compare' => '=' ],
-				],
+				'relation' => 'OR',
+				[ 'key' => AnnouncementEditor::META_END, 'value' => $this_week, 'compare' => '>=' ],
+				[ 'key' => AnnouncementEditor::META_END, 'value' => '',         'compare' => '=' ],
+				[ 'key' => AnnouncementEditor::META_END, 'compare' => 'NOT EXISTS' ],
 			],
 		] );
 		// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		if ( ! $q->have_posts() ) return '';
+		$cols   = in_array( (int) $atts['columns'], [ 1, 2, 3, 4 ], true ) ? (int) $atts['columns'] : 3;
+		$shapes = array_map( [ AnnouncementSection::class, 'post_to_shape' ], $q->posts );
+		wp_reset_postdata();
+
+		if ( wp_validate_boolean( $atts['grouped'] ) ) {
+			return self::render_grouped( $shapes, $cols, sanitize_key( $atts['first'] ) );
+		}
+
 		ob_start();
-		$cols = in_array( (int) $atts['columns'], [ 1, 2, 3, 4 ], true ) ? (int) $atts['columns'] : 3;
 		echo '<div class="scbl-ann-grid scbl-ann-grid--cols-' . esc_attr( (string) $cols ) . '">';
-		foreach ( $q->posts as $p ) {
-			echo wp_kses_post( AnnouncementSection::render_card( AnnouncementSection::post_to_shape( $p ) ) );
+		// The section allowlist rather than wp_kses_post(), which would strip
+		// the card image's srcset and sizes. See
+		// AnnouncementSection::allow_responsive_images().
+		foreach ( $shapes as $c ) {
+			echo wp_kses( AnnouncementSection::render_card( $c, $this_week ), Kses::tags() );
 		}
 		echo '</div>';
-		wp_reset_postdata();
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * [scbl_announcements grouped="true"]: the same cards under Upcoming and
+	 * Ongoing headings, for a page that replaces an events calendar. What is
+	 * coming up leads (first="upcoming", the default); first="ongoing" puts the
+	 * regular activities on top.
+	 */
+	private static function render_grouped( array $shapes, int $cols, string $first = 'upcoming' ): string {
+		// Today in the site's timezone, so an evening event does not leave the
+		// page in the afternoon just because UTC has rolled over to tomorrow.
+		$today  = wp_date( 'Y-m-d' );
+		$groups = self::group_announcements( $shapes, $today );
+		$titles = [
+			'upcoming' => __( 'Upcoming', 'seedcast-bulletin-library' ),
+			'ongoing'  => __( 'Ongoing', 'seedcast-bulletin-library' ),
+		];
+		if ( 'ongoing' === $first ) {
+			$titles = array_reverse( $titles, true );
+		}
+
+		ob_start();
+		echo '<div class="scbl-ann-board">';
+		foreach ( $titles as $key => $title ) {
+			if ( empty( $groups[ $key ] ) ) {
+				continue;
+			}
+			echo '<section class="scbl-section scbl-section--announcements-' . esc_attr( $key ) . '">';
+			echo '<h2 class="scbl-section__title">' . esc_html( $title ) . '</h2>';
+			echo '<div class="scbl-ann-grid scbl-ann-grid--cols-' . esc_attr( (string) $cols ) . '">';
+			foreach ( $groups[ $key ] as $c ) {
+				echo wp_kses( AnnouncementSection::render_card( $c, $today ), Kses::tags() );
+			}
+			echo '</div></section>';
+		}
+		echo '</div>';
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Splits announcements for the grouped page. Dated events (One Time,
+	 * Consecutive, Staggered) are Upcoming, ordered by the next day each one
+	 * happens, and leave the page the day after their last date rather than
+	 * at the end of the week: someone reading on Friday does not want
+	 * Monday's event. Everything else is part of the ongoing life of the
+	 * church and is listed by title.
+	 *
+	 * @param array[] $shapes Announcements in AnnouncementSection::post_to_shape() form.
+	 * @param string  $today  Y-m-d.
+	 * @return array{ongoing: array[], upcoming: array[]}
+	 */
+	public static function group_announcements( array $shapes, string $today ): array {
+		$ongoing  = [];
+		$upcoming = [];
+		foreach ( $shapes as $c ) {
+			$schedule = is_array( $c['schedule'] ?? null ) ? $c['schedule'] : [];
+			if ( ! Schedule::is_dated( $schedule ) ) {
+				$ongoing[] = $c;
+				continue;
+			}
+			$next = Schedule::next_date( $schedule, $today );
+			if ( '' !== $next ) {
+				$upcoming[] = [ $next, $c ];
+			}
+		}
+
+		usort(
+			$ongoing,
+			static function ( array $a, array $b ): int {
+				return strcasecmp( (string) $a['title'], (string) $b['title'] );
+			}
+		);
+		usort(
+			$upcoming,
+			static function ( array $a, array $b ): int {
+				$by_date = strcmp( $a[0], $b[0] );
+				return 0 !== $by_date ? $by_date : strcasecmp( (string) $a[1]['title'], (string) $b[1]['title'] );
+			}
+		);
+
+		return [
+			'ongoing'  => $ongoing,
+			'upcoming' => array_column( $upcoming, 1 ),
+		];
 	}
 
 

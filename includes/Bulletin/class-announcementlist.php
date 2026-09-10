@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Custom columns + filter on the Announcements admin list so triage is
- * fast when the list grows: Start and End columns visible at a glance,
+ * fast when the list grows: each schedule summarized at a glance,
  * a "Currently active | Upcoming | Expired | All" filter above the list,
  * and expired rows styled dimmer so they visually recede.
  */
@@ -15,7 +15,6 @@ class AnnouncementList {
 		$cpt = AnnouncementCPT::POST_TYPE;
 		add_filter( "manage_{$cpt}_posts_columns",       [ $this, 'columns' ] );
 		add_action( "manage_{$cpt}_posts_custom_column", [ $this, 'column_content' ], 10, 2 );
-		add_filter( "manage_edit-{$cpt}_sortable_columns", [ $this, 'sortable' ] );
 		add_action( 'pre_get_posts',                     [ $this, 'apply_filter' ] );
 		add_action( 'restrict_manage_posts',             [ $this, 'render_filter' ] );
 		add_action( 'admin_head-edit.php',               [ $this, 'expired_row_styling' ] );
@@ -30,8 +29,7 @@ class AnnouncementList {
 				$new['scbl_ann_thumb'] = '';
 			}
 			if ( $k === 'title' ) {
-				$new['scbl_ann_start'] = __( 'Start', 'seedcast-bulletin-library' );
-				$new['scbl_ann_end']   = __( 'End', 'seedcast-bulletin-library' );
+				$new['scbl_ann_schedule'] = __( 'Schedule', 'seedcast-bulletin-library' );
 				$new['scbl_ann_status']= __( 'Status', 'seedcast-bulletin-library' );
 			}
 		}
@@ -46,22 +44,18 @@ class AnnouncementList {
 			} else {
 				echo '<span class="scbl-ann-list__thumb scbl-ann-list__thumb--empty"></span>';
 			}
-		} elseif ( $col === 'scbl_ann_start' ) {
-			echo esc_html( (string) get_post_meta( $post_id, AnnouncementEditor::META_START, true ) );
-		} elseif ( $col === 'scbl_ann_end' ) {
-			$end = (string) get_post_meta( $post_id, AnnouncementEditor::META_END, true );
-			echo $end ? esc_html( $end ) : '<em class="scbl-ann-list__ongoing">' . esc_html__( 'ongoing', 'seedcast-bulletin-library' ) . '</em>';
+		} elseif ( $col === 'scbl_ann_schedule' ) {
+			$summary = Schedule::summary( Schedule::get( $post_id ), (string) get_post_meta( $post_id, AnnouncementEditor::META_TIME, true ) );
+			if ( '' !== $summary ) {
+				echo esc_html( $summary );
+			} else {
+				echo '<em class="scbl-ann-list__ongoing">' . esc_html__( 'No set schedule', 'seedcast-bulletin-library' ) . '</em>';
+			}
 		} elseif ( $col === 'scbl_ann_status' ) {
 			$status = self::classify( $post_id );
 			$label  = [ 'active' => __( 'Active', 'seedcast-bulletin-library' ), 'upcoming' => __( 'Upcoming', 'seedcast-bulletin-library' ), 'expired' => __( 'Expired', 'seedcast-bulletin-library' ) ][ $status ] ?? '';
 			printf( '<span class="scbl-ann-status scbl-ann-status--%s">%s</span>', esc_attr( $status ), esc_html( $label ) );
 		}
-	}
-
-	public function sortable( array $cols ): array {
-		$cols['scbl_ann_start'] = 'scbl_ann_start';
-		$cols['scbl_ann_end']   = 'scbl_ann_end';
-		return $cols;
 	}
 
 	public function render_filter(): void {
@@ -93,14 +87,21 @@ class AnnouncementList {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$filter = sanitize_key( wp_unslash( $_GET['scbl_ann_filter'] ) );
 
+		// An empty start or end means open-ended. As strings, '' sorts before
+		// every date, so each comparison has to rule it out explicitly.
 		if ( $filter === 'active' ) {
 			$q->set( 'meta_query', [
 				'relation' => 'AND',
-				[ 'key' => AnnouncementEditor::META_START, 'value' => $today, 'compare' => '<=' ],
+				[
+					'relation' => 'OR',
+					[ 'key' => AnnouncementEditor::META_START, 'value' => $today, 'compare' => '<=' ],
+					[ 'key' => AnnouncementEditor::META_START, 'compare' => 'NOT EXISTS' ],
+				],
 				[
 					'relation' => 'OR',
 					[ 'key' => AnnouncementEditor::META_END, 'value' => $today, 'compare' => '>=' ],
 					[ 'key' => AnnouncementEditor::META_END, 'value' => '',     'compare' => '=' ],
+					[ 'key' => AnnouncementEditor::META_END, 'compare' => 'NOT EXISTS' ],
 				],
 			] );
 		} elseif ( $filter === 'upcoming' ) {
@@ -109,7 +110,9 @@ class AnnouncementList {
 			] );
 		} elseif ( $filter === 'expired' ) {
 			$q->set( 'meta_query', [
+				'relation' => 'AND',
 				[ 'key' => AnnouncementEditor::META_END, 'value' => $today, 'compare' => '<' ],
+				[ 'key' => AnnouncementEditor::META_END, 'value' => '',     'compare' => '!=' ],
 			] );
 		}
 	}

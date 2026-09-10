@@ -251,9 +251,9 @@ class ServiceEditor {
 						<div class="scbl-review-item" data-source-id="<?php echo esc_attr( $r['source_id'] ); ?>">
 							<div class="scbl-review-item__body">
 								<strong><?php echo esc_html( $r['title'] ); ?></strong>
-								<div class="scbl-review-item__date">
-									<?php echo esc_html( $r['start'] ); ?><?php echo $r['end'] ? ' – ' . esc_html( $r['end'] ) : ' – ' . esc_html__( 'ongoing', 'seedcast-bulletin-library' ); ?>
-								</div>
+								<?php if ( '' !== $r['schedule_text'] ) : ?>
+									<div class="scbl-review-item__date"><?php echo esc_html( $r['schedule_text'] ); ?></div>
+								<?php endif; ?>
 							</div>
 							<button type="button" class="button button-small scbl-review-accept"><?php esc_html_e( 'Add', 'seedcast-bulletin-library' ); ?></button>
 						</div>
@@ -313,6 +313,7 @@ class ServiceEditor {
 		$location = (string) ( $c['location'] ?? '' );
 		$link     = (string) ( $c['link']     ?? '' );
 		$preview  = self::preview_text( (string) ( $c['body'] ?? '' ) );
+		$when     = isset( $c['schedule'] ) && is_array( $c['schedule'] ) ? Schedule::summary( $c['schedule'], $time ) : $time;
 
 		$diff = self::source_has_changed( $c );
 		?>
@@ -328,10 +329,10 @@ class ServiceEditor {
 					<?php if ( '' !== $preview ) : ?>
 						<div class="scbl-copy__desc"><?php echo esc_html( $preview ); ?></div>
 					<?php endif; ?>
-					<?php if ( $time || $location ) : ?>
+					<?php if ( $when || $location ) : ?>
 						<div class="scbl-copy__meta">
-							<?php if ( $time ) : ?><span><?php echo esc_html( $time ); ?></span><?php endif; ?>
-							<?php if ( $time && $location ) : ?> · <?php endif; ?>
+							<?php if ( $when ) : ?><span><?php echo esc_html( $when ); ?></span><?php endif; ?>
+							<?php if ( $when && $location ) : ?> · <?php endif; ?>
 							<?php if ( $location ) : ?><span><?php echo esc_html( $location ); ?></span><?php endif; ?>
 						</div>
 					<?php endif; ?>
@@ -364,6 +365,7 @@ class ServiceEditor {
 					<input type="hidden" class="scbl-copy-image-id"       name="scbl_copies[<?php echo esc_attr( $index ); ?>][image_id]"      value="<?php echo esc_attr( $image_id ); ?>" />
 					<input type="hidden" class="scbl-copy-start"          name="scbl_copies[<?php echo esc_attr( $index ); ?>][start]"         value="<?php echo esc_attr( $c['start'] ?? '' ); ?>" />
 					<input type="hidden" class="scbl-copy-end"            name="scbl_copies[<?php echo esc_attr( $index ); ?>][end]"           value="<?php echo esc_attr( $c['end']   ?? '' ); ?>" />
+					<input type="hidden" class="scbl-copy-schedule"       name="scbl_copies[<?php echo esc_attr( $index ); ?>][schedule]"      value="<?php echo esc_attr( isset( $c['schedule'] ) ? (string) wp_json_encode( $c['schedule'] ) : '' ); ?>" />
 				</div>
 				<button type="button" class="button-link scbl-copy-remove" aria-label="<?php esc_attr_e( 'Remove', 'seedcast-bulletin-library' ); ?>">&times;</button>
 			</div>
@@ -394,6 +396,13 @@ class ServiceEditor {
 		// click Update to bring the image in.
 		$src_image = (int) get_post_thumbnail_id( $source_id );
 		$copy_image_source = (int) ( $c['image_source_id'] ?? 0 );
+
+		// Copies saved before scheduling existed carry no schedule. Comparing
+		// them would flag every one of them as changed, so they are judged on
+		// their time alone, as before.
+		if ( isset( $c['schedule'] ) && is_array( $c['schedule'] ) && Schedule::get( $source_id ) !== Schedule::sanitize( $c['schedule'] ) ) {
+			return true;
+		}
 
 		return
 			(string) get_the_title( $source ) !== (string) ( $c['title'] ?? '' ) ||
@@ -491,7 +500,7 @@ class ServiceEditor {
 					$image_source_id = 0;
 				}
 
-				$copies[] = [
+				$copy = [
 					'source_id'       => $source_id,
 					'title'           => $title,
 					'body'            => isset( $row['body'] )     ? wp_kses_post( $row['body'] ) : '',
@@ -508,6 +517,15 @@ class ServiceEditor {
 					'start'           => isset( $row['start'] )    ? sanitize_text_field( $row['start'] ) : '',
 					'end'             => isset( $row['end'] )      ? sanitize_text_field( $row['end'] ) : '',
 				];
+
+				// The schedule arrives as JSON in one hidden field; every value in
+				// it is cleaned by Schedule::sanitize(). Legacy rows submit nothing
+				// here and stay legacy until the admin clicks Update.
+				$schedule = isset( $row['schedule'] ) && is_string( $row['schedule'] ) ? json_decode( $row['schedule'], true ) : null;
+				if ( is_array( $schedule ) && isset( $schedule['frequency'] ) ) {
+					$copy['schedule'] = Schedule::sanitize( $schedule );
+				}
+				$copies[] = $copy;
 			}
 		}
 		update_post_meta( $post_id, self::META_COPIES, $copies );
@@ -573,22 +591,16 @@ class ServiceEditor {
 	 * @return array<int, array>
 	 */
 	public static function suggestions_for_week( string $sunday, array $exclude ): array {
-		// Ordering by announcement start date requires meta_value orderby;
-		// excluding already-copied announcements requires post__not_in.
-		// Both are intrinsic to the copy-suggestion flow and the exclude
-		// list is bounded by the number of copies already on the service.
-		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+		// Excluding already-copied announcements requires post__not_in; the
+		// exclude list is bounded by the number of copies on the service.
+		// Ordering happens below, once each schedule's first date is known.
 		// phpcs:disable WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 		$posts = get_posts( [
 			'post_type'      => AnnouncementCPT::POST_TYPE,
 			'post_status'    => 'publish',
 			'numberposts'    => -1,
-			'orderby'        => 'meta_value',
-			'meta_key'       => '_scbl_ann_start',
-			'order'          => 'ASC',
 			'post__not_in'   => $exclude,
 		] );
-		// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 		// phpcs:enable WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 
 		// Prime meta and attachment caches so the per-announcement lookups
@@ -610,7 +622,14 @@ class ServiceEditor {
 		foreach ( $posts as $p ) {
 			$start = (string) get_post_meta( $p->ID, '_scbl_ann_start', true );
 			$end   = (string) get_post_meta( $p->ID, '_scbl_ann_end',   true );
-			if ( ! Week::range_overlaps_week( $start, $end, $sunday ) ) continue;
+			// Offered from the week it was published through the week of its
+			// last date. The admin approves every suggestion, so offering early
+			// costs nothing; a start date in the future is no reason to wait.
+			if ( ! Week::range_overlaps_week( substr( $p->post_date, 0, 10 ), $end, $sunday ) ) {
+				continue;
+			}
+			$schedule = Schedule::get( $p->ID );
+			$time     = (string) get_post_meta( $p->ID, '_scbl_ann_time', true );
 			$contact = get_post_meta( $p->ID, '_scbl_ann_contact', true );
 			$image_id = (int) get_post_thumbnail_id( $p->ID );
 			$image_url = $image_id ? (string) wp_get_attachment_image_url( $image_id, [ 60, 60 ] ) : '';
@@ -620,15 +639,29 @@ class ServiceEditor {
 				'body'      => $p->post_content,
 				'preview'   => self::preview_text( (string) $p->post_content ),
 				'link'      => (string) get_post_meta( $p->ID, '_scbl_ann_link',     true ),
-				'time'      => (string) get_post_meta( $p->ID, '_scbl_ann_time',     true ),
+				'time'      => $time,
 				'location'  => (string) get_post_meta( $p->ID, '_scbl_ann_location', true ),
 				'contact'   => is_array( $contact ) ? $contact : [],
 				'image_id'  => $image_id,
 				'image_url' => $image_url,
 				'start'     => $start,
 				'end'       => $end,
+				'schedule'      => $schedule,
+				'schedule_text' => Schedule::summary( $schedule, $time ),
 			];
 		}
+
+		// Soonest first; announcements with no dates after the dated ones.
+		usort(
+			$out,
+			static function ( array $a, array $b ): int {
+				if ( ( '' === $a['start'] ) !== ( '' === $b['start'] ) ) {
+					return '' === $a['start'] ? 1 : -1;
+				}
+				$by_start = strcmp( $a['start'], $b['start'] );
+				return 0 !== $by_start ? $by_start : strcasecmp( (string) $a['title'], (string) $b['title'] );
+			}
+		);
 		return $out;
 	}
 }

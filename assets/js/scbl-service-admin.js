@@ -56,6 +56,7 @@
 		set( '.scbl-copy-image-id',      src.image_id || 0 );
 		set( '.scbl-copy-start',         src.start    || '' );
 		set( '.scbl-copy-end',           src.end      || '' );
+		set( '.scbl-copy-schedule',      src.schedule ? JSON.stringify( src.schedule ) : '' );
 
 		// Refresh the visible display so the admin can see what will save.
 		var titleEl = row.querySelector( '.scbl-copy__title' );
@@ -176,6 +177,8 @@
 			title:         src.title    || '',
 			body:          src.body     || '',
 			preview:       src.preview  || '',
+			schedule:      src.schedule || null,
+			schedule_text: src.schedule_text || '',
 			link:          src.link     || '',
 			time:          src.time     || '',
 			location:      src.location || '',
@@ -203,7 +206,10 @@
 		// snapshot is committed via hidden inputs so save preserves it
 		// verbatim - editing lives on the source Announcement, not here.
 		var meta = [];
-		if ( data.time )     meta.push( escapeText( data.time ) );
+		var when = data.schedule_text || data.time;
+		if ( when ) {
+			meta.push( escapeText( when ) );
+		}
 		if ( data.location ) meta.push( escapeText( data.location ) );
 
 		var contactBits = [];
@@ -232,6 +238,7 @@
 					'<input type="hidden" name="scbl_copies[' + next + '][image_id]"       value="' + escapeAttr( data.image_id )      + '" />' +
 					'<input type="hidden" name="scbl_copies[' + next + '][start]"          value="' + escapeAttr( data.start )         + '" />' +
 					'<input type="hidden" name="scbl_copies[' + next + '][end]"            value="' + escapeAttr( data.end )           + '" />' +
+					'<input type="hidden" class="scbl-copy-schedule" name="scbl_copies[' + next + '][schedule]" value="' + escapeAttr( data.schedule ? JSON.stringify( data.schedule ) : '' ) + '" />' +
 				'</div>' +
 				'<button type="button" class="button-link scbl-copy-remove" aria-label="Remove">&times;</button>' +
 			'</div>';

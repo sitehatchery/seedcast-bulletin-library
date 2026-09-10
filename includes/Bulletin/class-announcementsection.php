@@ -15,6 +15,26 @@ class AnnouncementSection {
 	public function init(): void {
 		add_filter( 'scbl/service/sections',   [ $this, 'section' ], 20, 3 );
 		add_filter( 'scbl/service/card_lines', [ $this, 'card_line' ], 20, 3 );
+		add_filter( 'seedcast/kses/section_tags', [ $this, 'allow_responsive_images' ] );
+	}
+
+	/**
+	 * Card images carry srcset and sizes so the browser can fetch a file sharp
+	 * enough for the screen. WordPress's post allowlist drops both, so they
+	 * are added to the section allowlist that the service page and the
+	 * shortcodes escape through, which is what that filter is for.
+	 */
+	public function allow_responsive_images( array $tags ): array {
+		$tags['img'] = array_merge(
+			isset( $tags['img'] ) && is_array( $tags['img'] ) ? $tags['img'] : [],
+			[
+				'srcset'   => true,
+				'sizes'    => true,
+				'loading'  => true,
+				'decoding' => true,
+			]
+		);
+		return $tags;
 	}
 
 	public function section( array $sections, \WP_Post $service, string $service_date ): array {
@@ -29,7 +49,7 @@ class AnnouncementSection {
 			<h2 class="scbl-section__title"><?php esc_html_e( "This Week's Announcements", 'seedcast-bulletin-library' ); ?></h2>
 			<div class="scbl-ann-grid scbl-ann-grid--cols-3">
 				<?php foreach ( $copies as $c ) : ?>
-					<?php echo self::render_card( $c ); // phpcs:ignore WordPress.Security.EscapeOutput -- rendered by helper below ?>
+					<?php echo self::render_card( $c, Week::anchor( $service_date ) ); // phpcs:ignore WordPress.Security.EscapeOutput -- rendered by helper below ?>
 				<?php endforeach; ?>
 			</div>
 		</section>
@@ -65,10 +85,13 @@ class AnnouncementSection {
 	 * @param array $c {
 	 *     source_id: int, title: str, body: str, link: str,
 	 *     time: str, location: str, contact: {name,email,phone},
-	 *     image_id: int, start: str, end: str
+	 *     image_id: int, start: str, end: str,
+	 *     schedule?: array (see Schedule; absent on copies saved before scheduling)
 	 * }
+	 * @param string $as_of Y-m-d Sunday the reader is looking from, so the
+	 *                      schedule can leave out dates already behind them.
 	 */
-	public static function render_card( array $c ): string {
+	public static function render_card( array $c, string $as_of = '' ): string {
 		$title    = (string) ( $c['title']    ?? '' );
 		$body     = (string) ( $c['body']     ?? '' );
 		$link     = (string) ( $c['link']     ?? '' );
@@ -80,14 +103,31 @@ class AnnouncementSection {
 		$c_email  = (string) ( $contact['email'] ?? '' );
 		$c_phone  = (string) ( $contact['phone'] ?? '' );
 
-		$has_details = $time || $location || $c_name || $c_email || $c_phone;
+		$when = isset( $c['schedule'] ) && is_array( $c['schedule'] )
+			? Schedule::lines( $c['schedule'], $time, $as_of )
+			: ( '' !== $time ? [ $time ] : [] );
+
+		$has_details = $when || $location || $c_name || $c_email || $c_phone;
 
 		ob_start();
 		?>
 		<article class="scbl-ann-card">
 			<?php if ( $image_id ) : ?>
 				<div class="scbl-ann-card__image">
-					<?php echo wp_get_attachment_image( $image_id, 'medium', false, [ 'class' => 'scbl-ann-card__img' ] ); ?>
+					<?php
+					echo wp_get_attachment_image(
+						$image_id,
+						'large',
+						false,
+						[
+							'class' => 'scbl-ann-card__img',
+							// Cards rarely run wider than about 600px. Saying so lets the
+							// browser pick a sharp file from srcset, about twice that on a
+							// retina screen, rather than the full 1024px large size.
+							'sizes' => '(max-width: 640px) 100vw, 600px',
+						]
+					);
+					?>
 				</div>
 			<?php endif; ?>
 			<div class="scbl-ann-card__body">
@@ -99,12 +139,12 @@ class AnnouncementSection {
 				<?php endif; ?>
 				<?php if ( $has_details ) : ?>
 					<ul class="scbl-ann-card__details">
-						<?php if ( $time ) : ?>
+						<?php foreach ( $when as $line ) : ?>
 							<li class="scbl-ann-card__detail scbl-ann-card__detail--time">
 								<span class="scbl-ann-card__icon" aria-hidden="true">⏱</span>
-								<span><?php echo esc_html( $time ); ?></span>
+								<span><?php echo esc_html( $line ); ?></span>
 							</li>
-						<?php endif; ?>
+						<?php endforeach; ?>
 						<?php if ( $location ) : ?>
 							<li class="scbl-ann-card__detail scbl-ann-card__detail--location">
 								<span class="scbl-ann-card__icon" aria-hidden="true">📍</span>
@@ -150,19 +190,23 @@ class AnnouncementSection {
 	public static function post_to_shape( \WP_Post $p ): array {
 		$contact  = get_post_meta( $p->ID, AnnouncementEditor::META_CONTACT, true );
 		$image_id = (int) get_post_thumbnail_id( $p->ID );
+		$time     = (string) get_post_meta( $p->ID, AnnouncementEditor::META_TIME, true );
+		$schedule = Schedule::get( $p->ID );
 		return [
 			'source_id' => $p->ID,
 			'title'     => get_the_title( $p ),
 			'body'      => $p->post_content,
 			'preview'   => ServiceEditor::preview_text( (string) $p->post_content ),
 			'link'      => (string) get_post_meta( $p->ID, AnnouncementEditor::META_LINK,     true ),
-			'time'      => (string) get_post_meta( $p->ID, AnnouncementEditor::META_TIME,     true ),
+			'time'      => $time,
 			'location'  => (string) get_post_meta( $p->ID, AnnouncementEditor::META_LOC,      true ),
 			'contact'   => is_array( $contact ) ? $contact : [],
 			'image_id'  => $image_id,
 			'image_url' => $image_id ? (string) wp_get_attachment_image_url( $image_id, [ 60, 60 ] ) : '',
 			'start'     => (string) get_post_meta( $p->ID, AnnouncementEditor::META_START,    true ),
 			'end'       => (string) get_post_meta( $p->ID, AnnouncementEditor::META_END,      true ),
+			'schedule'      => $schedule,
+			'schedule_text' => Schedule::summary( $schedule, $time ),
 		];
 	}
 }
