@@ -155,6 +155,7 @@ No.
 7. Editing a program: description, time, optional link to the ministry page, and its own image.
 8. The Announcements list, showing each announcement's schedule and whether it is active or still upcoming.
 9. Editing an announcement: its frequency and schedule, location, contact details that autocomplete from your contacts list, and an event link.
+10. An announcements page made with `[scbl_announcements grouped="true"]`: dated events under Upcoming, soonest first, with each date and time on its own line, and regular gatherings under Ongoing.
 
 == Changelog ==
 
