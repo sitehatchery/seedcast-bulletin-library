@@ -235,7 +235,6 @@
 .scbl-archive__intro {
 	margin: 0 0 2rem;
 	line-height: 1.6;
-	max-width: 60ch;
 }
 
 /* Section blocks on the single page. */
@@ -373,7 +372,7 @@
 	padding: 0;
 	display: flex;
 	flex-flow: wrap;
-	gap: .5rem;
+	gap: 1rem;
 }
 .scbl-program {
 	display: flex;
