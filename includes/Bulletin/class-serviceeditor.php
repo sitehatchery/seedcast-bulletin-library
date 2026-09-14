@@ -35,7 +35,7 @@ class ServiceEditor {
 		if ( ! empty( $order ) && is_array( $order ) ) return $order;
 		return [
 			'normal'   => 'scbl_service_announcements,scbl_service_programs,scbl_service_handouts',
-			'side'     => 'submitdiv,postimagediv,scbl_service_image_position,scbl_service_video',
+			'side'     => 'submitdiv,postimagediv,scbl_service_gallery,scbl_service_image_position,scbl_service_video',
 			'advanced' => '',
 		];
 	}

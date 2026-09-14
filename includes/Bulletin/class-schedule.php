@@ -289,20 +289,23 @@ class Schedule {
 	/**
 	 * What the card says about when, one string per line.
 	 *
-	 * $as_of is the Sunday the reader is looking from: the service's week, or
-	 * this week for the shortcode. With it, Staggered dates already behind the
-	 * reader are dropped and Every Other Month names the months ahead. Without
-	 * it the whole schedule is described, which is what the admin screens want.
+	 * $as_of is the day the reader is looking from: the service's week, or
+	 * today on the shortcodes. With it, Staggered dates already behind the
+	 * reader are flagged in $past, keyed by line, so the card can cross them
+	 * out, and Every Other Month names the months ahead. Without it the whole
+	 * schedule is described, which is what the admin screens want.
 	 *
-	 * @param array  $s     Schedule.
-	 * @param string $time  The single Time field; ignored by kinds whose rows carry their own.
-	 * @param string $as_of Y-m-d, or '' for no reference point.
+	 * @param array      $s     Schedule.
+	 * @param string     $time  The single Time field; ignored by kinds whose rows carry their own.
+	 * @param string     $as_of Y-m-d, or '' for no reference point.
+	 * @param array|null $past  Filled with line index => true for lines already past.
 	 * @return string[]
 	 */
-	public static function lines( array $s, string $time, string $as_of = '' ): array {
+	public static function lines( array $s, string $time, string $as_of = '', ?array &$past = null ): array {
 		$time  = trim( $time );
 		$kind  = self::kind( $s );
 		$lines = [];
+		$past  = [];
 
 		if ( 'one_time' === $kind ) {
 			if ( ! empty( $s['date'] ) ) {
@@ -325,18 +328,11 @@ class Schedule {
 				$lines[] = self::with_time( self::every( (int) $row['weekday'] ), (string) $row['time'] );
 			}
 		} elseif ( 'staggered' === $kind ) {
-			$rows = $s['dates'] ?? [];
-			if ( '' !== $as_of ) {
-				$ahead = array_filter(
-					$rows,
-					static function ( array $row ) use ( $as_of ): bool {
-						return $row['date'] >= $as_of;
-					}
-				);
-				// Once every date has passed, show them all rather than nothing.
-				$rows = $ahead ? $ahead : $rows;
-			}
-			foreach ( $rows as $row ) {
+			// Every date stays on the card. Ones already behind the reader are
+			// flagged so the card can cross them out: a series half over still
+			// reads as one series, and the card itself goes once the last date has.
+			foreach ( $s['dates'] ?? [] as $row ) {
+				$past[ count( $lines ) ] = '' !== $as_of && $row['date'] < $as_of;
 				$lines[] = self::with_time( self::date_label( $row['date'], 'D, M j', $as_of ), (string) $row['time'] );
 			}
 		} elseif ( 'weekly' === $kind ) {

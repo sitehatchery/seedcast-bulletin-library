@@ -3,7 +3,7 @@
  * Plugin Name: Seedcast Bulletin Library
  * Plugin URI:  https://seedcast.ai/bulletin-library/
  * Description: A searchable archive of every week's service bulletin. Bulletin Library assembles programs, announcements, and handouts into a single dated page and preserves the story of each Sunday over time.
- * Version:     3.8.0
+ * Version:     3.9.0
  * Author:      Seedcast
  * Author URI:  https://seedcast.ai
  * License:     GPL-2.0-or-later
@@ -20,7 +20,7 @@ namespace SeedcastBulletinLibrary;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'SCBL_VERSION',         '3.8.0' );
+define( 'SCBL_VERSION',         '3.9.0' );
 define( 'SCBL_PLUGIN_FILE',     __FILE__ );
 define( 'SCBL_PLUGIN_DIR',      plugin_dir_path( __FILE__ ) );
 define( 'SCBL_PLUGIN_URL',      plugin_dir_url( __FILE__ ) );

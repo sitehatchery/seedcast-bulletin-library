@@ -103,8 +103,9 @@ class AnnouncementSection {
 		$c_email  = (string) ( $contact['email'] ?? '' );
 		$c_phone  = (string) ( $contact['phone'] ?? '' );
 
+		$past = [];
 		$when = isset( $c['schedule'] ) && is_array( $c['schedule'] )
-			? Schedule::lines( $c['schedule'], $time, $as_of )
+			? Schedule::lines( $c['schedule'], $time, $as_of, $past )
 			: ( '' !== $time ? [ $time ] : [] );
 
 		$has_details = $when || $location || $c_name || $c_email || $c_phone;
@@ -139,10 +140,15 @@ class AnnouncementSection {
 				<?php endif; ?>
 				<?php if ( $has_details ) : ?>
 					<ul class="scbl-ann-card__details">
-						<?php foreach ( $when as $line ) : ?>
-							<li class="scbl-ann-card__detail scbl-ann-card__detail--time">
+						<?php foreach ( $when as $i => $line ) : ?>
+							<?php $is_past = ! empty( $past[ $i ] ); ?>
+							<li class="scbl-ann-card__detail scbl-ann-card__detail--time<?php echo $is_past ? ' scbl-ann-card__detail--past' : ''; ?>">
 								<span class="scbl-ann-card__icon" aria-hidden="true">⏱</span>
-								<span><?php echo esc_html( $line ); ?></span>
+								<?php if ( $is_past ) : ?>
+									<span><s><?php echo esc_html( $line ); ?></s><span class="screen-reader-text"> <?php esc_html_e( '(past)', 'seedcast-bulletin-library' ); ?></span></span>
+								<?php else : ?>
+									<span><?php echo esc_html( $line ); ?></span>
+								<?php endif; ?>
 							</li>
 						<?php endforeach; ?>
 						<?php if ( $location ) : ?>

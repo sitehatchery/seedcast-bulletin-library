@@ -23,6 +23,8 @@ class Frontend {
 		add_filter( 'template_include',       [ $this, 'load_template' ], 99 );
 		add_action( 'wp_enqueue_scripts',     [ $this, 'assets' ] );
 		add_action( 'pre_get_posts',          [ $this, 'archive_query' ] );
+		add_filter( 'use_default_gallery_style', [ $this, 'gallery_style' ] );
+		add_filter( 'shortcode_atts_gallery',    [ $this, 'gallery_links_to_files' ] );
 
 		// Shortcodes.
 		add_shortcode( 'scbl_services',            [ $this, 'seedcast_services' ] );
@@ -103,10 +105,65 @@ class Frontend {
 
 		if ( $load && ! get_option( 'scbl_disable_frontend_css', false ) ) {
 			wp_enqueue_style( 'scbl-main', SCBL_PLUGIN_URL . 'assets/css/scbl-main.css', [ 'seedcast-core' ], scbl_asset_version( 'assets/css/scbl-main.css' ) );
+
+			// The lightbox, only where a service has photos for it to open: a
+			// gallery in the overview or in the Service Gallery box. It needs the
+			// stylesheet above, so it goes when that does.
+			$post = get_post();
+			if ( is_singular( ServiceCPT::POST_TYPE ) && $post && ( has_shortcode( (string) $post->post_content, 'gallery' ) || ServiceGallery::get( (int) $post->ID ) ) ) {
+				wp_enqueue_script( 'scbl-lightbox', SCBL_PLUGIN_URL . 'assets/js/scbl-lightbox.js', [], scbl_asset_version( 'assets/js/scbl-lightbox.js' ), true );
+				wp_localize_script(
+					'scbl-lightbox',
+					'scblLightbox',
+					[
+						'label' => __( 'Image viewer', 'seedcast-bulletin-library' ),
+						'close' => __( 'Close', 'seedcast-bulletin-library' ),
+						'prev'  => __( 'Previous image', 'seedcast-bulletin-library' ),
+						'next'  => __( 'Next image', 'seedcast-bulletin-library' ),
+						/* translators: 1: this image's number, 2: how many images the gallery has. */
+						'count' => __( '%1$s of %2$s', 'seedcast-bulletin-library' ),
+					]
+				);
+			}
 		}
 
 		// Share button behaviour lives in the shared core script, which core
 		// enqueues site wide. Nothing to do here.
+	}
+
+	/**
+	 * On a service page, WordPress's own gallery CSS gives way to the
+	 * plugin's, which lays a gallery out as a grid whether or not the theme
+	 * declared HTML5 galleries. Without this, a theme that declares them and
+	 * then styles nothing leaves every image stacked full width. Left alone
+	 * when the plugin's CSS is switched off, so a designer styling everything
+	 * themselves keeps WordPress's.
+	 *
+	 * @param bool $use Whether WordPress prints its default gallery styles.
+	 * @return bool
+	 */
+	public function gallery_style( $use ) {
+		if ( is_singular( ServiceCPT::POST_TYPE ) && ! get_option( 'scbl_disable_frontend_css', false ) ) {
+			return false;
+		}
+		return $use;
+	}
+
+	/**
+	 * On a service page, a gallery that would link each photo to its
+	 * attachment page links to the image file instead. The lightbox then
+	 * opens the full photo rather than a cropped thumbnail size, and anyone
+	 * without JavaScript still gets the photo, not a bare attachment page.
+	 * A gallery set to link to nothing is left alone.
+	 *
+	 * @param array $out Gallery attributes after defaults.
+	 * @return array
+	 */
+	public function gallery_links_to_files( $out ) {
+		if ( is_array( $out ) && is_singular( ServiceCPT::POST_TYPE ) && 'none' !== ( $out['link'] ?? '' ) ) {
+			$out['link'] = 'file';
+		}
+		return $out;
 	}
 
 	/**
@@ -206,7 +263,8 @@ class Frontend {
 		// The rule the service editor suggests by: everything published whose
 		// last date is not before this week. With no last date it runs until
 		// it is unpublished.
-		$this_week = Week::anchor( gmdate( 'Y-m-d' ) );
+		$today     = wp_date( 'Y-m-d' );
+		$this_week = Week::anchor( $today );
 		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		$q = new \WP_Query( [
 			'post_type'      => AnnouncementCPT::POST_TYPE,
@@ -235,7 +293,7 @@ class Frontend {
 		// the card image's srcset and sizes. See
 		// AnnouncementSection::allow_responsive_images().
 		foreach ( $shapes as $c ) {
-			echo wp_kses( AnnouncementSection::render_card( $c, $this_week ), Kses::tags() );
+			echo wp_kses( AnnouncementSection::render_card( $c, $today ), Kses::tags() );
 		}
 		echo '</div>';
 		return (string) ob_get_clean();
@@ -296,7 +354,12 @@ class Frontend {
 		foreach ( $shapes as $c ) {
 			$schedule = is_array( $c['schedule'] ?? null ) ? $c['schedule'] : [];
 			if ( ! Schedule::is_dated( $schedule ) ) {
-				$ongoing[] = $c;
+				// An ongoing activity with an end date leaves the page the day
+				// after it, the same as a dated event, not at the end of that week.
+				$end = Schedule::bounds( $schedule )[1];
+				if ( '' === $end || $end >= $today ) {
+					$ongoing[] = $c;
+				}
 				continue;
 			}
 			$next = Schedule::next_date( $schedule, $today );

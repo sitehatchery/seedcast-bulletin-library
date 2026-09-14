@@ -4,7 +4,7 @@ Tags: church, bulletin, ministry, announcements, sermons
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.8.0
+Stable tag: 3.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,11 +26,12 @@ Everything happens in the WordPress admin, in plain language. Create a service, 
 
 * **A dated heading**, so every Sunday has its own permanent URL and its own place in the archive.
 * **A featured image or video.** Drop in a YouTube, Vimeo or direct MP4 URL and the video plays in place of the image. You choose whether the image sits above the overview, below it, or stays hidden.
-* **A service overview** written in the normal WordPress editor. Prefer blocks? Turn the block editor on for services with one checkbox.
+* **A service overview** written in the normal WordPress editor. Prefer blocks? Turn the block editor on for services with one checkbox. A gallery added with Add Media shows as a tidy grid that opens in a lightbox.
 * **Today's Programs**, each with its time, description, image and optional link.
 * **This Week's Announcements**, laid out as cards saying when each one happens, where, who to contact, and an event link.
 * **Today's Handouts**, printable materials that render as download buttons beside the program they belong to.
 * **A sermon**, when Sermon Library is installed, and any other section a companion Seedcast plugin contributes.
+* **Photos** from the service, added in their own box on Edit Service and shown beside the page as a grid of thumbnails, above the visitor card, that open full size with a click.
 * **Share buttons** for Facebook, X, LinkedIn, email and copy link.
 
 = Programs =
@@ -48,7 +49,7 @@ Every announcement starts with a frequency, and the editor asks only for what th
 * **Staggered** for a handful of specific dates, like a quarterly worship night.
 * **Recurring** for a regular rhythm: weekly on a chosen day, monthly, every other month, or the first, second, third or last weekday of the month.
 
-The card says it in plain words, "Every Thursday · 7pm" or "Third Saturday of the month · 8am", and a Staggered announcement quietly drops the dates that have already passed.
+The card says it in plain words, "Every Thursday · 7pm" or "Third Saturday of the month · 8am", and a Staggered announcement crosses out the dates that have already passed while the rest are still to come.
 
 An announcement is offered to every Sunday service from the week it is published through the week of its last date. A notice that runs for six weeks is waiting on six service pages without anyone remembering to add it, and you still decide, one click at a time, which Sundays it actually appears on. Each announcement can also carry a location, contact name, email and phone, an event link and its own image, and empty fields simply disappear from the card.
 
@@ -120,6 +121,10 @@ Yes. Choose Multiday and add a row for each day, each with its own time. For spe
 
 Nothing, until you say so. Saved services hold a frozen copy, so history stays accurate. Where a source has changed, the editor shows an "Update" prompt on that item and you decide whether to pull the new wording in.
 
+= Can I add photos from a service? =
+
+Yes. Use the Service Gallery box on Edit Service: choose Add photos, pick as many as you like from the Media Library, and drag them into order. They show beside the service page as a grid of thumbnails, above the visitor card, and open full size in a lightbox. A gallery added to the overview with Add Media gets the same grid and lightbox.
+
 = Can I use the block editor for services? =
 
 Yes. Services use the classic editor by default so the service editor stays visually consistent, and a single checkbox in the settings switches them to the block editor when you want embeds, columns or richer content in the overview.
@@ -158,6 +163,15 @@ No.
 10. An announcements page made with `[scbl_announcements grouped="true"]`: dated events under Upcoming, soonest first, with each date and time on its own line, and regular gatherings under Ongoing.
 
 == Changelog ==
+
+= 3.9.0 =
+* New: a Service Gallery box on Edit Service. Add photos from the Media Library, drag them into order, and they show at the top of the service page sidebar, above the visitor card, two across, opening full size in a lightbox.
+* New: a lightbox for service page photos, with previous and next, captions, arrow keys, swipe, and Escape or a click outside the photo to close. It needs no library, works with or without Elementor, and keeps Elementor's own lightbox from opening on the same photos.
+* Galleries added to a service overview with Add Media show as a grid of even tiles that follows the gallery's column setting, instead of a stack of full width images on themes that leave gallery styling to themselves. On service pages they link to the image file, so the lightbox opens the full photo.
+* Staggered announcements keep every date on the card and cross out the ones already past, instead of dropping them. The card itself leaves once the last date has.
+* On the grouped announcements page, an ongoing announcement with an end date leaves the day after it, not at the end of that week.
+* The one grid announcements shortcode works out which dates have passed in the site's timezone.
+* For developers: a new `scbl_service_sidebar_start` action fires at the top of the service page sidebar, above anything the Visitor Card adds.
 
 = 3.8.0 =
 * Announcements get a Scheduling box in place of Display period. Choose a frequency (No set schedule, One Time, Consecutive, Multiday, Staggered, or Recurring: weekly, monthly, every other month, or the first, second, third or last weekday of the month) and fill in only the dates and times it needs. Time now lives in Scheduling.
@@ -240,6 +254,9 @@ No.
 * Initial rebrand from Living Bulletin to Seedcast Bulletin Library. Namespace, constants, post types, meta keys, options, admin menu, filters, CSS classes, JS filenames, template folder, and text domain all renamed.
 
 == Upgrade Notice ==
+
+= 3.9.0 =
+Adds a Service Gallery box and a lightbox for service page photos, and keeps past Staggered dates on announcement cards, crossed out. Nothing needs changing after upgrading.
 
 = 3.8.0 =
 Announcements get a Scheduling box with frequencies such as One Time, Multiday and Recurring. Existing announcements carry over as "No set schedule" with their dates and time, so nothing changes until you edit them.

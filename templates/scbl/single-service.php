@@ -161,6 +161,14 @@ while ( have_posts() ) :
 			// Buffer the sidebar. If anything renders into it, add the
 			// two-column body modifier; if not, main takes the full width.
 			ob_start();
+			/**
+			 * Fires at the top of the service page sidebar, above anything
+			 * Visitor Card adds, whether or not the Visitor Card is shown.
+			 * The service gallery renders here.
+			 *
+			 * @param int $post_id The service post ID.
+			 */
+			do_action( 'scbl_service_sidebar_start', get_the_ID() );
 			if ( (bool) get_option( 'scbl_show_visitor_card', 1 ) ) {
 				/**
 				 * Fires in the sidebar column of a service page. Plugins that
