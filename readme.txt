@@ -166,7 +166,7 @@ No.
 
 = 3.9.0 =
 * New: a Service Gallery box on Edit Service. Add photos from the Media Library, drag them into order, and they show at the top of the service page sidebar, above the visitor card, two across, opening full size in a lightbox.
-* New: a lightbox for service page photos, with previous and next, captions, arrow keys, swipe, and Escape or a click outside the photo to close. It needs no library, works with or without Elementor, and keeps Elementor's own lightbox from opening on the same photos.
+* New: a lightbox for service page photos, with previous and next, captions, arrow keys, swipe, and Escape or a click outside the photo to close. It needs no library, works with or without Elementor, and keeps Elementor's own lightbox from opening on the same photos. It comes from the shared Seedcast library, so Sermon Library pages get the same one.
 * Galleries added to a service overview with Add Media show as a grid of even tiles that follows the gallery's column setting, instead of a stack of full width images on themes that leave gallery styling to themselves. On service pages they link to the image file, so the lightbox opens the full photo.
 * Staggered announcements keep every date on the card and cross out the ones already past, instead of dropping them. The card itself leaves once the last date has.
 * On the grouped announcements page, an ongoing announcement with an end date leaves the day after it, not at the end of that week.

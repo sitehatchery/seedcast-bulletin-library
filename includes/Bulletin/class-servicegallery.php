@@ -28,6 +28,7 @@ class ServiceGallery {
 		add_action( 'save_post_' . ServiceCPT::POST_TYPE, [ $this, 'save' ], 10, 2 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_assets' ] );
 		add_action( 'scbl_service_sidebar_start', [ $this, 'render' ] );
+		add_filter( 'seedcast/gallery/has_photos', [ $this, 'has_photos' ], 10, 2 );
 	}
 
 	/**
@@ -60,6 +61,22 @@ class ServiceGallery {
 			}
 		}
 		return $ids;
+	}
+
+	/**
+	 * Tell the shared gallery fix a service has photos here, so its grid
+	 * styles and lightbox load for the Photos panel even when the overview
+	 * has no [gallery] of its own.
+	 *
+	 * @param bool          $has_photos Whether the page already has photos.
+	 * @param \WP_Post|null $post       The page's post.
+	 * @return bool
+	 */
+	public function has_photos( $has_photos, $post ): bool {
+		if ( $has_photos ) {
+			return true;
+		}
+		return $post instanceof \WP_Post && ServiceCPT::POST_TYPE === $post->post_type && [] !== self::get( $post->ID );
 	}
 
 	public function register_box(): void {
