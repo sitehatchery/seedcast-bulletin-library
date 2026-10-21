@@ -107,7 +107,7 @@ class Frontend {
 
 		}
 
-		// Share button behaviour lives in the shared core script, which core
+		// Share button behavior lives in the shared core script, which core
 		// enqueues site wide. Nothing to do here.
 	}
 

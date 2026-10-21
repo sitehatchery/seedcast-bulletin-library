@@ -135,7 +135,7 @@ Yes. Set your own singular and plural labels in the settings, and the admin menu
 
 = Will it match my theme? =
 
-The plugin ships with light, token-based styling that sits comfortably in most themes, and every colour is driven by a shared token you can override. If you would rather write the styles yourself, switch the front-end CSS off in the settings and keep the markup exactly as it is.
+The plugin ships with light, token-based styling that sits comfortably in most themes, and every color is driven by a shared token you can override. If you would rather write the styles yourself, switch the front-end CSS off in the settings and keep the markup exactly as it is.
 
 = What if I only want the shared infrastructure and not the service pages? =
 
@@ -203,7 +203,7 @@ No.
 
 = 3.6.2 =
 * Program body preserves HTML. Save switched from `sanitize_textarea_field` (which stripped tags) to `wp_kses_post`.
-* Persistent "The program has changed" notice fixed. `source_has_changed` now normalises both sides through `wp_kses_post` so legacy stripped copies re-sync on the first Update click.
+* Persistent "The program has changed" notice fixed. `source_has_changed` now normalizes both sides through `wp_kses_post` so legacy stripped copies re-sync on the first Update click.
 * Program body renders in a `<div>` wrapper with `wpautop` and `do_shortcode`, so paragraphs and shortcodes both work.
 
 = 3.6.1 =
@@ -223,7 +223,7 @@ No.
 * Stronger defensive CSS for wp_editor when sites strip parts of wp-admin.css.
 
 = 3.5.7 =
-* Reverted Handouts save handler to the pre-3.5.4 behaviour that was known to work in the field.
+* Reverted Handouts save handler to the pre-3.5.4 behavior that was known to work in the field.
 
 = 3.5.4 - 3.5.6 =
 * JS enqueue improvements (media-editor dependency, robust row builder), plain-textarea test for description rendering, various visual and copy fixes.
