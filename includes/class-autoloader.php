@@ -38,6 +38,7 @@ class Autoloader {
 		'Programs'            => 'class-programs.php',
 		'ShortcodeGenerator'  => 'class-shortcodegenerator.php',
 		'ServiceGallery'      => 'class-servicegallery.php',
+		'ServiceSummary'      => 'class-servicesummary.php',
 	];
 
 	public function load( string $class ): void {

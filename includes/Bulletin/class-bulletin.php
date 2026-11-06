@@ -27,6 +27,7 @@ class Bulletin {
 		( new ProgramList() )->init();
 		( new Handouts() )->init();
 		( new ServiceGallery() )->init();
+		( new ServiceSummary() )->init();
 		( new Programs() )->init();
 
 		// Front-end.

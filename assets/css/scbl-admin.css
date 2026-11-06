@@ -52,6 +52,9 @@
 
 /* ── Service editor: meta box descriptions and video field ── */
 .scbl-metabox-desc { margin-top: 0; }
+.scbl-summary-actions { display: flex; align-items: center; margin-bottom: 0; }
+.scbl-summary-actions .spinner { float: none; margin-top: 0; }
+.scbl-summary-status:empty { display: none; }
 .scbl-video-label {
 	display: block;
 	margin-bottom: .35rem;
