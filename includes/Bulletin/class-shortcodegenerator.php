@@ -90,6 +90,12 @@ class ShortcodeGenerator {
 				'label' => __( 'Next service', 'seedcast-bulletin-library' ),
 				'desc'  => __( 'A featured card for the next upcoming service', 'seedcast-bulletin-library' ),
 			],
+			'quick_links'   => [
+				'tag'   => 'scbl_quick_links',
+				'icon'  => '🔗',
+				'label' => __( 'Quick Links', 'seedcast-bulletin-library' ),
+				'desc'  => __( 'The pages visitors ask for: what you believe, who leads, what to expect', 'seedcast-bulletin-library' ),
+			],
 			'church'        => [
 				'tag'   => ChurchDetails::SHORTCODE,
 				'icon'  => '⛪',
@@ -226,6 +232,38 @@ class ShortcodeGenerator {
 						<div class="scbl-sc-panel" data-for="next_service" hidden>
 							<p class="scbl-sc-note">
 								<?php esc_html_e( 'Nothing to set. It shows the next service by date as a featured card, and moves on by itself each week.', 'seedcast-bulletin-library' ); ?>
+							</p>
+						</div>
+
+						<div class="scbl-sc-panel" data-for="quick_links" hidden>
+							<table class="scbl-sc-table">
+								<tr>
+									<th><label for="scbl-sc-links-show"><?php esc_html_e( 'Heading', 'seedcast-bulletin-library' ); ?></label></th>
+									<td>
+										<select id="scbl-sc-links-show" data-param="show_heading" data-default="yes">
+											<option value="yes"><?php esc_html_e( 'Show a heading', 'seedcast-bulletin-library' ); ?></option>
+											<option value="no"><?php esc_html_e( 'No heading', 'seedcast-bulletin-library' ); ?></option>
+										</select>
+									</td>
+								</tr>
+								<tr data-show-when="show_heading=yes">
+									<th><label for="scbl-sc-links-heading"><?php esc_html_e( 'Heading text', 'seedcast-bulletin-library' ); ?></label></th>
+									<td>
+										<input type="text" id="scbl-sc-links-heading" class="regular-text" data-param="heading" data-default=""
+											placeholder="<?php echo esc_attr( QuickLinks::heading() ); ?>" />
+										<p class="description"><?php esc_html_e( 'Leave blank to use the heading from settings.', 'seedcast-bulletin-library' ); ?></p>
+									</td>
+								</tr>
+								<tr>
+									<th><label for="scbl-sc-links-class"><?php esc_html_e( 'Extra CSS class', 'seedcast-bulletin-library' ); ?></label></th>
+									<td>
+										<input type="text" id="scbl-sc-links-class" class="regular-text" data-param="class" data-default=""
+											placeholder="<?php esc_attr_e( 'Optional', 'seedcast-bulletin-library' ); ?>" />
+									</td>
+								</tr>
+							</table>
+							<p class="scbl-sc-note">
+								<?php esc_html_e( 'The links themselves are kept in Bulletin Library settings, under Quick Links, so a change there reaches every place this appears.', 'seedcast-bulletin-library' ); ?>
 							</p>
 						</div>
 

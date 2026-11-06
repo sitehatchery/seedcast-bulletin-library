@@ -42,6 +42,7 @@ class Bulletin {
 		// their Program's card via ProgramSection, keyed by handout.program_id.
 		( new ProgramSection() )->init();
 		( new AnnouncementSection() )->init();
+		( new QuickLinks() )->init();
 
 		// Hide service-copy attachments from the standard Media Library so
 		// the admin's media grid doesn't fill with duplicates. The copies

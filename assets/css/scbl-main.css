@@ -550,3 +550,30 @@
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 }
+
+/* ── Quick Links ───────────────────────────────────────────
+   A plain stack of links, hairline between them. Sits in the service page
+   sidebar, and anywhere the shortcode is placed. */
+.scbl-links {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.scbl-links__item + .scbl-links__item {
+	border-top: 1px solid var(--sc-color-border, #e5e7eb);
+}
+.scbl-links__link {
+	display: block;
+	padding: .55rem 0;
+	line-height: 1.4;
+	text-decoration: none;
+}
+.scbl-links__link:hover,
+.scbl-links__link:focus {
+	text-decoration: underline;
+}
+/* In the sidebar the list is the whole panel, so it closes up tighter than
+   a section in the main column. */
+.scbl-single__sidebar .scbl-section--links {
+	margin-bottom: 1.5rem;
+}

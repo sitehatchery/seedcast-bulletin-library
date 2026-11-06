@@ -35,6 +35,7 @@ class Autoloader {
 		'ProgramEditor'       => 'class-programeditor.php',
 		'ProgramList'         => 'class-programlist.php',
 		'ProgramSection'      => 'class-programsection.php',
+		'QuickLinks'          => 'class-quicklinks.php',
 		'Programs'            => 'class-programs.php',
 		'ShortcodeGenerator'  => 'class-shortcodegenerator.php',
 		'ServiceGallery'      => 'class-servicegallery.php',

@@ -65,6 +65,21 @@ class SettingsSection {
 			'sanitize_callback' => function ( $v ) { return $v ? 1 : 0; },
 			'default'           => 1,
 		] );
+
+		// Quick Links: an ordered list of { label, url }, the heading above
+		// it, and whether service pages carry it.
+		register_setting( self::GROUP, QuickLinks::OPTION, [
+			'sanitize_callback' => [ QuickLinks::class, 'sanitize' ],
+			'default'           => [],
+		] );
+		register_setting( self::GROUP, QuickLinks::OPTION_HEADING, [
+			'sanitize_callback' => 'sanitize_text_field',
+			'default'           => '',
+		] );
+		register_setting( self::GROUP, QuickLinks::OPTION_ON_SERVICES, [
+			'sanitize_callback' => function ( $v ) { return $v ? 1 : 0; },
+			'default'           => 1,
+		] );
 	}
 
 	/**
@@ -264,6 +279,8 @@ class SettingsSection {
 			</table>
 		</div>
 
+		<?php QuickLinks::settings_card(); ?>
+
 		<div class="sc-settings-card">
 			<h2><?php esc_html_e( 'Shortcodes', 'seedcast-bulletin-library' ); ?></h2>
 			<p>
@@ -281,6 +298,9 @@ class SettingsSection {
 			</p>
 			<p><code>[scbl_next_service]</code> <?php esc_html_e( 'featured card for the next upcoming service.', 'seedcast-bulletin-library' ); ?></p>
 			<p><code>[scbl_announcements]</code> <?php esc_html_e( 'current and upcoming announcements as a grid.', 'seedcast-bulletin-library' ); ?></p>
+			<p><code>[scbl_quick_links]</code> <?php esc_html_e( 'the Quick Links list above, wherever you put it.', 'seedcast-bulletin-library' ); ?><br />
+				<span class="description"><?php esc_html_e( 'Attributes: heading (your own wording for this one place), show_heading (set it to no to leave the heading out), class.', 'seedcast-bulletin-library' ); ?></span>
+			</p>
 			<p><code>[scbl_announcements grouped="true"]</code> <?php esc_html_e( 'the same cards under Upcoming and Ongoing headings, for a page that replaces an events calendar. Use first="upcoming" (the default) or first="ongoing" to choose which comes first.', 'seedcast-bulletin-library' ); ?></p>
 		</div>
 		<?php

@@ -32,11 +32,18 @@ Everything happens in the WordPress admin, in plain language. Create a service, 
 * **Today's Handouts**, printable materials that render as download buttons beside the program they belong to.
 * **A sermon**, when Sermon Library is installed, and any other section a companion Seedcast plugin contributes.
 * **Photos** from the service, added in their own box on Edit Service and shown beside the page as a grid of thumbnails, above the visitor card, that open full size with a click.
+* **Quick Links** to the pages a visitor asks for by name: your statement of faith, mission, vision, leadership, ministries and what to expect on a first visit. Entered once in settings and carried on every service page, the way a printed bulletin carries them on the back.
 * **Share buttons** for Facebook, X, LinkedIn, email and copy link.
 
 = Programs =
 
 Programs are the parallel experiences happening at your gathering: Sunday School, Youth Program, Main Service, Kids Church. Write each one once, with a title, time, description, image and an optional link to the ministry page on your site. From then on it is offered to you every week, ready to attach with a single click.
+
+= Quick Links, the back page of the bulletin =
+
+A printed bulletin almost always carries the same short list: what we believe, what we are here for, who leads, what our ministries are, and what happens if this is your first Sunday. Fill those in once under Quick Links in settings and they appear on every service page, in the sidebar under the visitor card.
+
+The six usual ones are offered as labeled rows waiting for an address, and the address field completes as you type a page name, so pointing Leadership at your leadership page takes a few keystrokes rather than a trip to copy a URL. Rename any of them, add as many of your own as you like, and anything you leave blank simply never appears. The same list goes anywhere else on the site with `[scbl_quick_links]`.
 
 = Announcements scheduled the way your church talks =
 
@@ -71,6 +78,7 @@ Every service page emits full JSON-LD: an Event with startDate, datePublished, d
 * Set a fallback image for services without one of their own.
 * Switch off the plugin's front-end CSS entirely if you would rather style everything in your theme. The markup and class names stay exactly the same.
 * Show or hide the Visitor Card sidebar on service pages.
+* Keep your Quick Links, name the heading above them, and choose whether service pages carry them.
 
 = Shortcodes =
 
@@ -80,6 +88,7 @@ Every one of these can be built in **Bulletin Library > Shortcodes** by picking 
 * `[scbl_next_service]` a featured card for the next upcoming service.
 * `[scbl_announcements]` current and upcoming announcements as a grid.
 * `[scbl_announcements grouped="true"]` the same cards under Upcoming and Ongoing headings, for a page that can replace an events calendar. Upcoming lists dated events soonest first and drops each one the day after it ends. Use `first="upcoming"` (the default) or `first="ongoing"` to choose which comes first. Both forms accept columns (1 to 4, default 3).
+* `[scbl_quick_links]` your Quick Links, wherever you want them: a footer, an About page, a sidebar widget. Attributes: heading (your own wording for this one placement), show_heading (set it to no to leave the heading out), class.
 * `[seedcast_church_details]` your church name, address, service times, phone, email and a directions link, all read from one place so a move or a time change is a single edit.
 
 = Part of the Seedcast suite =
@@ -165,6 +174,8 @@ No.
 == Changelog ==
 
 = 3.9.0 =
+* New: Quick Links. Keep the handful of pages visitors ask for by name, statement of faith, mission, vision, leadership, ministries and what to expect on a visit, in one place under settings, and they show on every service page in the sidebar. Rename them, add your own, reach for the heading you prefer, or switch them off for service pages and place them yourself.
+* New: `[scbl_quick_links]` puts the same list anywhere on the site, with its own heading or none at all. It is in the Shortcode Generator with the rest.
 * New: a Service Gallery box on Edit Service. Add photos from the Media Library, drag them into order, and they show at the top of the service page sidebar, above the visitor card, two across, opening full size in a lightbox.
 * New: a lightbox for service page photos, with previous and next, captions, arrow keys, swipe, and Escape or a click outside the photo to close. It needs no library, works with or without Elementor, and keeps Elementor's own lightbox from opening on the same photos. It comes from the shared Seedcast library, so Sermon Library pages get the same one.
 * Galleries added to a service overview with Add Media show as a grid of even tiles that follows the gallery's column setting, instead of a stack of full width images on themes that leave gallery styling to themselves. On service pages they link to the image file, so the lightbox opens the full photo.
@@ -256,7 +267,7 @@ No.
 == Upgrade Notice ==
 
 = 3.9.0 =
-Adds a Service Gallery box and a lightbox for service page photos, and keeps past Staggered dates on announcement cards, crossed out. Nothing needs changing after upgrading.
+Adds Quick Links for the pages visitors ask for, a Service Gallery box with a lightbox for service page photos, and keeps past Staggered dates on announcement cards, crossed out. Nothing needs changing after upgrading.
 
 = 3.8.0 =
 Announcements get a Scheduling box with frequencies such as One Time, Multiday and Recurring. Existing announcements carry over as "No set schedule" with their dates and time, so nothing changes until you edit them.

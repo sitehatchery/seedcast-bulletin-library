@@ -1,14 +1,51 @@
 /*
- * Bulletin Library admin JS: default fallback image picker on the Settings page.
+ * Bulletin Library admin JS for the Settings page: the default fallback image
+ * picker, and the Quick Links rows.
  *
- * Opens the WordPress media library, stores the chosen attachment's ID
- * in a hidden input, and updates the inline preview. Clearing zeroes
- * the ID so the plugin falls back to its shipped default image.
+ * The picker opens the WordPress media library, stores the chosen
+ * attachment's ID in a hidden input, and updates the inline preview.
+ * Clearing zeroes the ID so the plugin falls back to its shipped default
+ * image.
  */
 ( function () {
 	'use strict';
 
+	/*
+	 * Quick Links: add and remove rows. Each new row is cloned from the
+	 * template PHP printed, with __i__ swapped for an index no row is using,
+	 * so the names stay unique whatever has been removed along the way.
+	 */
+	function initLinks() {
+		var rows = document.querySelector( '[data-scbl-links-rows]' );
+		var add  = document.querySelector( '[data-scbl-links-add]' );
+		var tpl  = document.getElementById( 'scbl-links-tpl' );
+		if ( ! rows || ! add || ! tpl ) return;
+
+		var next = rows.querySelectorAll( '.scbl-links-row' ).length;
+
+		add.addEventListener( 'click', function ( e ) {
+			e.preventDefault();
+			var holder = document.createElement( 'div' );
+			holder.innerHTML = tpl.innerHTML.replace( /__i__/g, String( next++ ) ).trim();
+			var row = holder.firstElementChild;
+			if ( ! row ) return;
+			rows.appendChild( row );
+			var label = row.querySelector( 'input' );
+			if ( label ) label.focus();
+		} );
+
+		rows.addEventListener( 'click', function ( e ) {
+			var remove = e.target.closest( '.scbl-links-row__remove' );
+			if ( ! remove ) return;
+			e.preventDefault();
+			var row = remove.closest( '.scbl-links-row' );
+			if ( row ) row.remove();
+		} );
+	}
+
 	function init() {
+		initLinks();
+
 		var wrap = document.querySelector( '.scbl-default-image' );
 		if ( ! wrap ) return;
 

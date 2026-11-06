@@ -29,6 +29,7 @@ class Frontend {
 		add_shortcode( 'scbl_services',            [ $this, 'seedcast_services' ] );
 		add_shortcode( 'scbl_next_service',        [ $this, 'seedcast_next_service' ] );
 		add_shortcode( 'scbl_announcements',       [ $this, 'seedcast_announcements' ] );
+		add_shortcode( 'scbl_quick_links',         [ $this, 'seedcast_quick_links' ] );
 	}
 
 	/**
@@ -96,7 +97,8 @@ class Frontend {
 			if ( $post && (
 				has_shortcode( (string) $post->post_content, 'scbl_services' ) ||
 				has_shortcode( (string) $post->post_content, 'scbl_next_service' ) ||
-				has_shortcode( (string) $post->post_content, 'scbl_announcements' )
+				has_shortcode( (string) $post->post_content, 'scbl_announcements' ) ||
+				has_shortcode( (string) $post->post_content, 'scbl_quick_links' )
 			) ) {
 				$load = true;
 			}
@@ -214,6 +216,52 @@ class Frontend {
 		echo '</div>';
 		wp_reset_postdata();
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * [scbl_quick_links]: the list from settings, anywhere on the site.
+	 *
+	 * heading overrides the one in settings for this one placement, and
+	 * show_heading="no" leaves it out altogether, for a footer or a column
+	 * that already carries a heading of its own.
+	 *
+	 * @param array|string $atts Shortcode attributes.
+	 * @return string
+	 */
+	public function seedcast_quick_links( $atts ): string {
+		self::ensure_shortcode_assets();
+		$atts = shortcode_atts(
+			[
+				'heading'      => '',
+				'show_heading' => 'yes',
+				'class'        => '',
+			],
+			is_array( $atts ) ? $atts : [],
+			'scbl_quick_links'
+		);
+
+		$heading = trim( (string) $atts['heading'] );
+		if ( '' === $heading ) {
+			$heading = QuickLinks::heading();
+		}
+		// Spelled out rather than left to wp_validate_boolean(), which reads
+		// "no" as true: only the word "false" is false to it.
+		$show = strtolower( trim( (string) $atts['show_heading'] ) );
+		if ( in_array( $show, [ 'no', 'false', 'off', 'none', '0', '' ], true ) ) {
+			$heading = '';
+		}
+
+		// The section allowlist rather than wp_kses_post(), to keep one
+		// escaping rule across this file.
+		return wp_kses(
+			QuickLinks::render_panel(
+				[
+					'heading' => $heading,
+					'class'   => (string) $atts['class'],
+				]
+			),
+			Kses::tags()
+		);
 	}
 
 	public function seedcast_announcements( $atts ): string {

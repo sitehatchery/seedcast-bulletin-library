@@ -756,3 +756,15 @@ body.post-type-scbl_service .wp-switch-editor {
 	text-align: center;
 }
 .scbl-gallery-box__hint { margin: .5rem 0 0; }
+
+/* Settings: Quick Links rows. Link text on the left, address on the right,
+   and a remove button that matches the schedule rows. */
+.scbl-links-rows { margin: 0 0 .75rem; max-width: 46rem; }
+.scbl-links-row { display: flex; align-items: center; gap: .5rem; margin: 0 0 .5rem; }
+.scbl-links-row__label { flex: 0 0 15rem; min-width: 0; }
+.scbl-links-row__url { flex: 1 1 auto; min-width: 0; }
+.scbl-links-row__remove { color: #b32d2e; font-size: 1.25rem; line-height: 1; text-decoration: none; }
+@media (max-width: 782px) {
+	.scbl-links-row { flex-wrap: wrap; }
+	.scbl-links-row__label { flex: 1 1 100%; }
+}
