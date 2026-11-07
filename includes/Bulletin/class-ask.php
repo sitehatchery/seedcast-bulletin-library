@@ -43,7 +43,8 @@ class Ask {
 		'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'can', 'do', 'does', 'did', 'for', 'from', 'how', 'i', 'if',
 		'in', 'is', 'it', 'me', 'my', 'of', 'on', 'or', 'our', 'the', 'their', 'there', 'this', 'to', 'us', 'was',
 		'we', 'what', 'when', 'where', 'which', 'who', 'why', 'will', 'with', 'you', 'your', 'about', 'any', 'have',
-		'has', 'church', 'time', 'date', 'day', 'start', 'held', 'tell', 'know',
+		'has', 'church', 'time', 'date', 'day', 'start', 'held', 'tell', 'know', 'anything', 'something',
+		'everything', 'anyone', 'there', 'going', 'happening', 'planned', 'scheduled', 'else',
 	];
 
 	public function init(): void {
@@ -88,8 +89,9 @@ class Ask {
 
 		$today   = wp_date( 'Y-m-d' );
 		$cutoff  = wp_date( 'Y-m-d', time() - self::GRACE_DAYS * DAY_IN_SECONDS );
-		$whatson = (bool) array_intersect( $words, self::WHATS_ON );
-		$subject = array_values( array_diff( $words, self::WHATS_ON ) );
+		$window  = self::window( (string) $question, $today );
+		$whatson = $window || array_intersect( $words, self::WHATS_ON );
+		$subject = array_values( array_diff( $words, self::WHATS_ON, self::WINDOW_WORDS ) );
 		$matches = [];
 
 		$posts = get_posts( [
@@ -123,7 +125,24 @@ class Ask {
 				continue;
 			}
 
-			$next = Schedule::next_date( Schedule::get( $post->ID ), $today );
+			$schedule = Schedule::get( $post->ID );
+			$next     = self::next_occurrence( $schedule, $today );
+
+			/*
+			 * "This weekend", "tonight", "next week": only what happens in
+			 * that window, whatever else the question matched. An empty
+			 * window is an answer too, which the assistant gives honestly.
+			 */
+			if ( $window ) {
+				$within = self::first_within( $schedule, $window[0], $window[1] );
+
+				if ( '' === $within ) {
+					continue;
+				}
+
+				$next   = $within;
+				$score += 5;
+			}
 
 			// Something still to come is the likelier answer.
 			if ( '' !== $next ) {
@@ -162,19 +181,17 @@ class Ask {
 	private function item( \WP_Post $post, float $score, string $today ): array {
 		$schedule = Schedule::get( $post->ID );
 		$time     = (string) get_post_meta( $post->ID, AnnouncementEditor::META_TIME, true );
-		$next     = Schedule::next_date( $schedule, $today );
+		$next     = self::next_occurrence( $schedule, $today );
 		$lines    = [];
 
 		$past  = [];
 		$when  = Schedule::lines( $schedule, $time, $today, $past );
 		$dated = Schedule::is_dated( $schedule );
 
-		if ( $dated ) {
-			if ( '' !== $next ) {
-				$lines[] = 'Next date: ' . self::long_date( $next ) . self::time_on( $schedule, $next, $time ) . ( $next === $today ? ' (today)' : '' );
-			} else {
-				$lines[] = 'Every date has now passed. Nothing is scheduled after today.';
-			}
+		if ( '' !== $next ) {
+			$lines[] = 'Next date: ' . self::long_date( $next ) . self::time_on( $schedule, $next, $time ) . ( $next === $today ? ' (today)' : '' );
+		} elseif ( $dated ) {
+			$lines[] = 'Every date has now passed. Nothing is scheduled after today.';
 		}
 
 		if ( $when ) {
@@ -232,7 +249,161 @@ class Ask {
 			}
 		}
 
+		// Several days a week, each with a time of its own.
+		$weekday = (int) self::day( $date )->format( 'w' );
+
+		foreach ( (array) ( $schedule['days'] ?? [] ) as $row ) {
+			if ( (int) ( $row['weekday'] ?? -1 ) === $weekday && '' !== trim( (string) ( $row['time'] ?? '' ) ) ) {
+				return ', ' . trim( (string) $row['time'] );
+			}
+		}
+
 		return '' !== trim( $time ) ? ', ' . trim( $time ) : '';
+	}
+
+	/**
+	 * Words that name a window of time rather than what the question is about.
+	 */
+	private const WINDOW_WORDS = [ 'tonight', 'today', 'tomorrow', 'weekend', 'week' ];
+
+	/** How far ahead "next" looks for a recurring announcement. */
+	private const LOOKAHEAD_DAYS = 62;
+
+	/**
+	 * The window a question names, as first and last Y-m-d, or null.
+	 *
+	 * @return array{0:string, 1:string}|null
+	 */
+	private static function window( string $question, string $today ): ?array {
+		$q   = mb_strtolower( $question );
+		$day = self::day( $today );
+		$dow = (int) $day->format( 'w' );
+
+		if ( preg_match( '/\b(tonight|today)\b/u', $q ) ) {
+			return [ $today, $today ];
+		}
+
+		if ( preg_match( '/\btomorrow\b/u', $q ) ) {
+			$t = $day->modify( '+1 day' )->format( 'Y-m-d' );
+			return [ $t, $t ];
+		}
+
+		if ( preg_match( '/\bweekend\b/u', $q ) ) {
+			// Saturday and Sunday ahead, or what is left of this one.
+			$saturday = 6 === $dow ? $day : ( 0 === $dow ? $day->modify( '-1 day' ) : $day->modify( 'next saturday' ) );
+			$start    = 0 === $dow ? $today : $saturday->format( 'Y-m-d' );
+			return [ $start, $saturday->modify( '+1 day' )->format( 'Y-m-d' ) ];
+		}
+
+		if ( preg_match( '/\bnext week\b/u', $q ) ) {
+			$monday = $day->modify( 'next monday' );
+			return [ $monday->format( 'Y-m-d' ), $monday->modify( '+6 days' )->format( 'Y-m-d' ) ];
+		}
+
+		if ( preg_match( '/\bthis week\b/u', $q ) ) {
+			return [ $today, $day->modify( '+6 days' )->format( 'Y-m-d' ) ];
+		}
+
+		return null;
+	}
+
+	/**
+	 * The next day an announcement happens, on or after today, within the
+	 * look-ahead. '' when nothing is left or the schedule names no day.
+	 */
+	private static function next_occurrence( array $schedule, string $today ): string {
+		return self::first_within( $schedule, $today, self::day( $today )->modify( '+' . self::LOOKAHEAD_DAYS . ' days' )->format( 'Y-m-d' ) );
+	}
+
+	/**
+	 * The first day from $from to $to inclusive that the schedule happens on.
+	 */
+	private static function first_within( array $schedule, string $from, string $to ): string {
+		$day  = self::day( $from );
+		$last = self::day( $to );
+
+		while ( $day <= $last ) {
+			$ymd = $day->format( 'Y-m-d' );
+
+			if ( self::occurs_on( $schedule, $ymd ) ) {
+				return $ymd;
+			}
+
+			$day = $day->modify( '+1 day' );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Whether an announcement happens on a given day.
+	 *
+	 * Every kind of schedule that names its days: one date, a run of them, a
+	 * list, a weekday every week, several weekdays, or the first, second,
+	 * third or last weekday of the month. Monthly and every-other-month name
+	 * no day, so they are never said to happen on one. A start or end date,
+	 * where the schedule has them, bounds every kind.
+	 */
+	private static function occurs_on( array $schedule, string $ymd ): bool {
+		$kind  = Schedule::kind( $schedule );
+		$start = (string) ( $schedule['start'] ?? '' );
+		$end   = (string) ( $schedule['end'] ?? '' );
+
+		if ( ( '' !== $start && $ymd < $start ) || ( '' !== $end && $ymd > $end ) ) {
+			return false;
+		}
+
+		$day     = self::day( $ymd );
+		$weekday = (int) $day->format( 'w' );
+		$date    = (int) $day->format( 'j' );
+
+		switch ( $kind ) {
+			case 'one_time':
+				return ( $schedule['date'] ?? '' ) === $ymd;
+
+			case 'consecutive':
+				return '' !== $start && '' !== $end;
+
+			case 'staggered':
+				foreach ( (array) ( $schedule['dates'] ?? [] ) as $row ) {
+					if ( ( $row['date'] ?? '' ) === $ymd ) {
+						return true;
+					}
+				}
+				return false;
+
+			case 'weekly':
+				return (int) ( $schedule['weekday'] ?? -1 ) === $weekday;
+
+			case 'multiday':
+				foreach ( (array) ( $schedule['days'] ?? [] ) as $row ) {
+					if ( (int) ( $row['weekday'] ?? -1 ) === $weekday ) {
+						return true;
+					}
+				}
+				return false;
+
+			case 'first_weekday':
+			case 'second_weekday':
+			case 'third_weekday':
+			case 'last_weekday':
+				if ( (int) ( $schedule['weekday'] ?? -1 ) !== $weekday ) {
+					return false;
+				}
+				if ( 'last_weekday' === $kind ) {
+					return $date + 7 > (int) $day->format( 't' );
+				}
+				$nth = [ 'first_weekday' => 1, 'second_weekday' => 2, 'third_weekday' => 3 ][ $kind ];
+				return (int) ceil( $date / 7 ) === $nth;
+		}
+
+		return false;
+	}
+
+	private static function day( string $ymd ): \DateTimeImmutable {
+		$day = date_create_immutable( $ymd, wp_timezone() );
+
+		return $day ? $day : new \DateTimeImmutable( 'now', wp_timezone() );
 	}
 
 	private static function long_date( string $ymd ): string {
