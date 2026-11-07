@@ -121,6 +121,25 @@ class Ask {
 				$score += 4;
 			}
 
+			/*
+			 * Most of the place named is the announcement asked about too:
+			 * "what is happening at New Life Community Church". The name of a
+			 * place is the part before its address.
+			 */
+			$place       = preg_split( '/\s+[-–—,]\s+|,/u', (string) get_post_meta( $post->ID, AnnouncementEditor::META_LOC, true ) );
+			$place_words = self::words( (string) ( $place[0] ?? '' ) );
+			$in_place    = count( array_intersect( $subject, $place_words ) );
+
+			if ( $place_words && $in_place * 2 >= count( $place_words ) ) {
+				$score += 6;
+			}
+
+			// A question asking for events is asking for these, ahead of any
+			// sermon or page that shares a word with it.
+			if ( $whatson && $score >= 3 ) {
+				$score += 4;
+			}
+
 			if ( $score < 3 && ! ( $whatson && ! $subject ) ) {
 				continue;
 			}
