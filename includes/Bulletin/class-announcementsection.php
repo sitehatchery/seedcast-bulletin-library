@@ -112,7 +112,12 @@ class AnnouncementSection {
 
 		ob_start();
 		?>
-		<article class="scbl-ann-card">
+		<?php
+		// An anchor of its own, so a link (the assistant's citations among
+		// them) can land on this card rather than at the top of the page.
+		$anchor = ! empty( $c['source_id'] ) ? 'scbl-ann-' . (int) $c['source_id'] : '';
+		?>
+		<article class="scbl-ann-card"<?php echo '' !== $anchor ? ' id="' . esc_attr( $anchor ) . '"' : ''; ?>>
 			<?php if ( $image_id ) : ?>
 				<div class="scbl-ann-card__image">
 					<?php

@@ -34,6 +34,10 @@ class Bulletin {
 		( new Frontend() )->init();
 		( new \SeedcastBulletinLibrary\Frontend\Schema() )->init();
 
+		// Announcements, offered to the public assistant where the AI Engine
+		// asks. Costs nothing where nothing asks.
+		( new Ask() )->init();
+
 		// Contribute sections to the service page via the sections filter -
 		// every other suite plugin does the same to appear on the Sunday
 		// page keyed by the service's week.
