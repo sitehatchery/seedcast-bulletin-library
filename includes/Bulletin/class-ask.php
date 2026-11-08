@@ -76,7 +76,7 @@ class Ask {
 	 *
 	 * @param mixed  $found    Anything an earlier filter found.
 	 * @param string $question What the visitor asked.
-	 * @param array  $context  Unused.
+	 * @param array  $context  The question apart from added terms, if sent.
 	 * @return array
 	 */
 	public function retrieve( $found, $question, $context = [] ): array {
@@ -87,11 +87,23 @@ class Ask {
 			return $found;
 		}
 
+		/*
+		 * What kind of question this is comes from the question as asked.
+		 * The AI Engine adds search terms of its own to what it hands over,
+		 * and passes the question apart: "activities" and "programs" added to
+		 * "what events are coming up?" are not a subject the visitor named,
+		 * and taken for one they matched nothing and emptied the list.
+		 */
+		$context = is_array( $context ) ? $context : [];
+		$asked   = trim( (string) ( $context['question'] ?? '' ) );
+		$asked   = '' !== $asked ? $asked : (string) $question;
+		$intent  = self::words( $asked );
+
 		$today   = wp_date( 'Y-m-d' );
 		$cutoff  = wp_date( 'Y-m-d', time() - self::GRACE_DAYS * DAY_IN_SECONDS );
-		$window  = self::window( (string) $question, $today );
-		$whatson = $window || array_intersect( $words, self::WHATS_ON );
-		$subject = array_values( array_diff( $words, self::WHATS_ON, self::WINDOW_WORDS ) );
+		$window  = self::window( $asked, $today );
+		$whatson = $window || array_intersect( $intent, self::WHATS_ON );
+		$subject = array_values( array_diff( $intent ?: $words, self::WHATS_ON, self::WINDOW_WORDS ) );
 		$matches = [];
 
 		$posts = get_posts( [
@@ -166,6 +178,16 @@ class Ask {
 			// Something still to come is the likelier answer.
 			if ( '' !== $next ) {
 				$score += 1;
+			}
+
+			/*
+			 * "What events are coming up?" with nothing more particular in it
+			 * is asking for exactly these. Without the lift they scored 2, and
+			 * pages that merely mention "events" outranked them: the answer
+			 * described a calendar instead of giving one.
+			 */
+			if ( $whatson && ! $subject && '' !== $next ) {
+				$score += 8;
 			}
 
 			$matches[] = [
@@ -483,6 +505,11 @@ class Ask {
 					$word = substr( $word, 0, -strlen( $suffix ) );
 					break;
 				}
+			}
+
+			// "What's" loses its apostrophe and then its s: still a stopword.
+			if ( in_array( $word, self::STOPWORDS, true ) ) {
+				continue;
 			}
 
 			$out[] = $word;
