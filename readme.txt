@@ -182,6 +182,7 @@ No.
 * Staggered announcements keep every date on the card and cross out the ones already past, instead of dropping them. The card itself leaves once the last date has.
 * On the grouped announcements page, an ongoing announcement with an end date leaves the day after it, not at the end of that week.
 * The one grid announcements shortcode works out which dates have passed in the site's timezone.
+* New: where the Seedcast AI Engine's assistant is switched on, it answers from your announcements: "when is the next worship night?", "what is happening this weekend?", or "what is on at New Life Community Church?", with the next date for weekly events and nothing already past offered as upcoming. Only published announcements are read, and nothing changes on sites without the assistant.
 * For developers: a new `scbl_service_sidebar_start` action fires at the top of the service page sidebar, above anything the Visitor Card adds.
 
 = 3.8.0 =
@@ -267,7 +268,7 @@ No.
 == Upgrade Notice ==
 
 = 3.9.0 =
-Adds Quick Links for the pages visitors ask for, a Service Gallery box with a lightbox for service page photos, and keeps past Staggered dates on announcement cards, crossed out. Nothing needs changing after upgrading.
+Adds Quick Links for the pages visitors ask for, announcements for the AI Engine's assistant to answer from, a Service Gallery box with a lightbox for service page photos, and keeps past Staggered dates on announcement cards, crossed out. Nothing needs changing after upgrading.
 
 = 3.8.0 =
 Announcements get a Scheduling box with frequencies such as One Time, Multiday and Recurring. Existing announcements carry over as "No set schedule" with their dates and time, so nothing changes until you edit them.
